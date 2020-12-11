@@ -1,0 +1,94 @@
+<resources>
+    <string name="app_name">WarehouseProject</string>
+
+    <string name="navHome">Главная</string>
+    <string name="navItemList">Каталог</string>
+    <string name="navAdd">Новый товар</string>
+    <string name="navSearch">Поиск</string>
+    <string name="navHistory">История</string>
+    <string-array name="sortTypes">
+        <item>Сортировать по: Наименованию</item>
+        <item>Сортировать по: Количеству</item>
+    </string-array>
+
+    <string-array name="itemTypes">
+        <item>Процессор</item>
+        <item>Материнская плата</item>
+        <item>Видеокарта</item>
+        <item>Оперативная память</item>
+        <item>Блок питания</item>
+        <item>Корпус</item>
+        <item>Комплектующие для сервера</item>
+        <item>Охлаждение компьютера</item>
+        <item>SSD накопитель</item>
+        <item>Жесткий диск</item>
+        <item>Аксессуар для накопителей</item>
+        <item>Устройство расширения</item>
+    </string-array>
+
+    <string-array name="processorfilters">
+        <item>Производитель:</item>
+        <item> Семейство процессоров:</item>
+        <item> Сокет:</item>
+        <item> Количество ядер:</item>
+        <item> Год выхода:</item>
+    </string-array>
+
+    <string-array name="motherboardfilters">
+        <item>Производитель:</item>
+        <item> Сокет:</item>
+        <item> Чипсет:</item>
+        <item> Для процессоров:</item>
+        <item> Форм-фактор:</item>
+    </string-array>
+
+    <string-array name="videocardfilters">
+        <item>Производитель:</item>
+        <item> Графический процессор:</item>
+        <item> Производитель графического процессора:</item>
+        <item> Объём видеопамяти гб:</item>
+        <item> Тип памяти:</item>
+    </string-array>
+
+    <string-array name="ramfilters">
+        <item>Производитель:</item>
+        <item> Тип памяти:</item>
+        <item> Объём одного модуля памяти:</item>
+        <item> Суммарный объём памяти:</item>
+        <item> Тактовая частота:</item>
+    </string-array>
+
+    <string-array name="powersupplyfilters">
+        <item>Производитель:</item>
+        <item> Мощность Вт:</item>
+        <item> Сертификат:</item>
+        <item> Форм-фактор:</item>
+        <item> PFC:</item>
+    </string-array>
+
+    <string-array name="bodiesfilters">
+        <item>Производитель:</item>
+        <item> Размер корпуса:</item>
+        <item> Боковое окно:</item>
+        <item> Размещение блока питания:</item>
+        <item> Комплектация:</item>
+    </string-array>
+
+    <string-array name="ssdfilters">
+        <item>Производитель:</item>
+        <item> Физический интерфейс:</item>
+        <item> Объём накопителя:</item>
+        <item> Тип памяти:</item>
+        <item> Ресурс работы:</item>
+    </string-array>
+
+    <string-array name="hddfilters">
+        <item>Производитель:</item>
+        <item> Объём накопителя:</item>
+        <item> Скорость вращения:</item>
+        <item> Объём кэш-памяти:</item>
+        <item> Год выхода:</item>
+    </string-array>
+
+
+</resources>

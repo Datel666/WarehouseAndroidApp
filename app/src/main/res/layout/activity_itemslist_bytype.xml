@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+
+
+    tools:context=".Code.itemslistBytype"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/itemstypeTextView"
+                android:layout_width="match_parent"
+                android:fontFamily="sans-serif"
+                android:text="Процессоры"
+                android:textAlignment="center"
+                android:layout_height="32dp"
+                android:background="#777070"
+                android:textAllCaps="true"
+                android:textColor="@color/design_default_color_on_secondary"
+                android:textStyle="bold"
+                android:textSize="24sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:background="@drawable/my_custom_background"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/showFiltersBtn"
+                    android:layout_width="110dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+
+                    android:background="@android:color/holo_orange_dark"
+                    android:fontFamily="sans-serif"
+                    android:onClick="showFiltersonClick"
+                    android:paddingLeft="10dp"
+                    android:text="Фильтры"
+                    android:textAlignment="textStart"
+                    android:textSize="12sp"
+                    android:visibility="visible" />
+
+                <Spinner
+                    android:id="@+id/sortType"
+                    android:layout_width="331dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:entries="@array/sortTypes" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/searchField"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:hint="Поиск" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="422dp">
+
+                <ExpandableListView
+
+                    android:id="@+id/settingsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:background="@color/design_default_color_on_primary"
+                    android:visibility="invisible">
+
+
+                </ExpandableListView>
+
+                <com.example.warehouseproject.customForms.ExpandableHeightGridView
+                    android:id="@+id/ehgridview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/prevbtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="prevbtnClick"
+                    android:layout_weight="1"
+                    android:text="Пред страница" />
+
+                <Button
+                    android:id="@+id/nextbtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="nextbtnClick"
+                    android:layout_weight="1"
+                    android:text="След страница" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
