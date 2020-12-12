@@ -55,7 +55,7 @@
                     android:text="Вендор: " />
 
                 <TextView
-                    android:id="@+id/textView16"
+                    android:id="@+id/vendorhistoryContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
@@ -75,7 +75,7 @@
                     android:text="Тип товара: " />
 
                 <TextView
-                    android:id="@+id/textView20"
+                    android:id="@+id/historytypeContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
@@ -95,7 +95,7 @@
                     android:text="Название товара: " />
 
                 <TextView
-                    android:id="@+id/textView22"
+                    android:id="@+id/historynameContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
@@ -115,7 +115,7 @@
                     android:text="Количество: " />
 
                 <TextView
-                    android:id="@+id/textView24"
+                    android:id="@+id/historyCountContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />

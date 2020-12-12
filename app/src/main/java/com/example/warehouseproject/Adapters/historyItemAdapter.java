@@ -8,8 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.example.warehouseproject.Code.item;
+import com.example.warehouseproject.Code.historyitem;
 import com.example.warehouseproject.R;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +20,9 @@ public class historyItemAdapter extends BaseAdapter {
     private Context mContext;
 
 
-    private List<String> items;
+    private List<historyitem> items;
 
-    public historyItemAdapter(Context c,  ArrayList<String> _items ) {
+    public historyItemAdapter(Context c,  ArrayList<historyitem> _items ) {
         mContext = c;
 
         items=_items;
@@ -56,18 +57,19 @@ public class historyItemAdapter extends BaseAdapter {
         if (convertView == null) {
 
             grid = new View(mContext);
-            grid = inflater.inflate(R.layout., null);
-            TextView name = (TextView) grid.findViewById(R.id.itemnameContainer);
-            TextView type = (TextView) grid.findViewById(R.id.itemtypeContainer) ;
-            TextView count = (TextView) grid.findViewById(R.id.itemcountContainer);
-            //TextView description = (TextView) grid.findViewById(R.id.descriptionContainer);
-            //ImageView imageView = (ImageView) grid.findViewById(R.id.imageContainer);
-            //imageView.setAdjustViewBounds(true);
-            name.setText(items.get(position).name);
+            grid = inflater.inflate(R.layout.historyitemsgrid, null);
+            TextView operation = (TextView) grid.findViewById(R.id.operationContainer);
+            TextView vendor = (TextView) grid.findViewById(R.id.vendorhistoryContainer);
+            TextView name = (TextView) grid.findViewById(R.id.historynameContainer);
+            TextView type = (TextView) grid.findViewById(R.id.historytypeContainer) ;
+            TextView count = (TextView) grid.findViewById(R.id.historyCountContainer);
+
+            operation.setText(items.get(position).operation);
+            vendor.setText(items.get(position).vendor);
             type.setText(items.get(position).type);
+            name.setText(items.get(position).name);
             count.setText(items.get(position).count);
-            //description.setText(items.get(position).description);
-            //imageView.setImageResource(R.mipmap.ic_launcher);
+
         } else {
             grid = (View) convertView;
         }
