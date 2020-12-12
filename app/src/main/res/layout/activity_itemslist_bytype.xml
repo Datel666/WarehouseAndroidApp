@@ -55,7 +55,7 @@
                     android:visibility="visible" />
 
                 <Spinner
-                    android:id="@+id/sortType"
+                    android:id="@+id/SortType"
                     android:layout_width="331dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

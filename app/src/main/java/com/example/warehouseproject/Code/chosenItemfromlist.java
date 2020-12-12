@@ -173,8 +173,13 @@ public class chosenItemfromlist extends AppCompatActivity {
         database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
     }
 
+    private void deleteItem(int itemid){
+        database.delete(DBHelper.TABLE_WAREHOUSE,DBHelper.KEY_ID + "=?",new String[]{String.valueOf(itemid)});
+    }
+
     //endregion
-    //region operationBtnsRegion
+
+    //region BtnsRegion
     public void performOperationClick(View view) {
 
         if (!database.isOpen()) {
@@ -202,12 +207,8 @@ public class chosenItemfromlist extends AppCompatActivity {
         updateforms(Item);
     }
 
-    public void undoOperationClick(View view) {
 
-    }
-    //endregion
 
-    //region editBtnsRegion
     public void changeinformationClick(View view) {
         changeinformation.setEnabled(false);
         decline.setEnabled(true);
@@ -241,6 +242,26 @@ public class chosenItemfromlist extends AppCompatActivity {
 
         Item = getitemInformation(Item.id);
         updateforms(Item);
+    }
+
+    public void deleteClick(View view) {
+        if(!database.isOpen()){
+            database = helper.getWritableDatabase();
+        }
+        try{
+            database.beginTransaction();
+            deleteItem(Item.id);
+            database.setTransactionSuccessful();
+        }
+        catch(Exception ex){
+            Toast toast = Toast.makeText(getApplicationContext(),ex.getMessage().toString(),Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
+        }
+        finally{
+            database.endTransaction();
+            this.finish();
+        }
     }
     //endregion
 

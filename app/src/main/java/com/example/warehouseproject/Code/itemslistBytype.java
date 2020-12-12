@@ -74,6 +74,12 @@ public class itemslistBytype extends AppCompatActivity {
         setContentView(R.layout.activity_itemslist_bytype);
 
         // Инициализация форм
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         initializeViews();
         // Инициализация переменных, заполнение форм
         initializeValues();
@@ -507,8 +513,6 @@ public class itemslistBytype extends AppCompatActivity {
                 break;
         }
     }
-
-
 
 
     /**

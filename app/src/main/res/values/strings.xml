@@ -6,9 +6,15 @@
     <string name="navAdd">Новый товар</string>
     <string name="navSearch">Поиск</string>
     <string name="navHistory">История</string>
+
     <string-array name="sortTypes">
         <item>Сортировать по: Наименованию</item>
         <item>Сортировать по: Количеству</item>
+    </string-array>
+
+    <string-array name="historysortTypes">
+        <item>Сортировать по: Дате</item>
+        <item>Сортировать по: Наименованию</item>
     </string-array>
 
     <string-array name="itemTypes">
