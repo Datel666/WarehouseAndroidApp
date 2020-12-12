@@ -9,7 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".chosenItemfromlist"></activity>
+        <activity android:name=".Code.chosenItemfromlist">
+            <intent-filter>
+                <action android:name="com.example.warehouseproject.Code.chosenItemfromlistActivity"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".Code.itemslistBytype">
             <intent-filter>
                 <action android:name="com.example.warehouseproject.Code.processorsActivity" />

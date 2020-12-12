@@ -155,8 +155,10 @@ public class itemslistBytype extends AppCompatActivity {
         ehgrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int chosenID = currentpage * paginator.ITEMS_PER_PAGE + position;
-
+                int chosenID = queryResults.get(currentpage * paginator.ITEMS_PER_PAGE + position).id;
+                Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");
+                chosenitemIntent.putExtra("itemid",String.valueOf(chosenID));
+                startActivity(chosenitemIntent);
 
             }
         });

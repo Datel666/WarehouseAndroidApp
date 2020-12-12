@@ -90,5 +90,10 @@
         <item> Год выхода:</item>
     </string-array>
 
+    <string-array name="operations">
+        <item>Импорт товара</item>
+        <item>Экспорт товара</item>
+    </string-array>
+
 
 </resources>

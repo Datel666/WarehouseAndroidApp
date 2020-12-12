@@ -4,6 +4,7 @@ public class item {
 
 
     public item(int _id, String _str, String _type, String _count, String _description) {
+        id = _id;
         name = _str;
         count = _count;
         type = _type;
