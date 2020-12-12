@@ -32,7 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="223dp"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingLeft="2dp">
 
             <LinearLayout
                 android:layout_width="377dp"
@@ -84,6 +85,7 @@
                     android:layout_width="match_parent"
 
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:singleLine="true"
                     android:textSize="14sp" />
 
@@ -100,6 +102,8 @@
                     android:layout_width="match_parent"
 
                     android:layout_height="wrap_content"
+                    android:enabled="false"
+                    android:inputType="text"
                     android:singleLine="true"
                     android:textSize="14sp" />
 
@@ -116,6 +120,7 @@
                     android:layout_width="match_parent"
 
                     android:layout_height="wrap_content"
+                    android:enabled="false"
                     android:singleLine="true"
                     android:textSize="14sp" />
 
@@ -136,6 +141,8 @@
             android:layout_width="match_parent"
 
             android:layout_height="wrap_content"
+            android:enabled="false"
+            android:inputType="text"
             android:singleLine="true"
             android:textAlignment="viewStart"
             android:textSize="14sp" />
@@ -157,7 +164,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="135dp"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -169,7 +176,7 @@
                     android:orientation="vertical">
 
                     <Spinner
-                        android:id="@+id/spinner2"
+                        android:id="@+id/operationChooser"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:entries="@array/operations" />
@@ -179,12 +186,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="39dp"
                         android:hint="Введите количество"
+                        android:inputType="number"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/vendorEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="39dp"
+                        android:hint="Поставщик"
+                        android:inputType="text"
                         android:textSize="14sp" />
 
                     <Button
                         android:id="@+id/performOperationBtn"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="45dp"
+                        android:onClick="performOperationClick"
                         android:text="Выполнить операцию" />
 
                 </LinearLayout>
@@ -200,8 +217,9 @@
                     <Button
                         android:id="@+id/changeinformationBtn"
                         android:layout_width="match_parent"
-                        android:layout_height="28dp"
+                        android:layout_height="23dp"
                         android:layout_weight="1"
+                        android:onClick="changeinformationClick"
                         android:text="Изменить информацию" />
 
                     <Button
@@ -209,6 +227,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="18dp"
                         android:layout_weight="1"
+                        android:enabled="false"
+                        android:onClick="declineClick"
                         android:text="Отменить" />
 
                     <Button
@@ -216,6 +236,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="18dp"
                         android:layout_weight="1"
+                        android:enabled="false"
+                        android:onClick="applyClick"
                         android:text="Подтвердить" />
 
                 </LinearLayout>

@@ -179,9 +179,9 @@ public class NewItemFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
+                database.beginTransaction();
+
                 contentValues.put(DBHelper.KEY_QR, printQR(Long.toString(getProfilesCount())));
-
-
                 contentValues.put(DBHelper.KEY_ITEMTYPE, currentItemtype);
                 contentValues.put(DBHelper.KEY_ITEMNAME, itemname.getText().toString());
                 contentValues.put(DBHelper.KEY_COUNT, itemcount.getText().toString());
@@ -195,6 +195,8 @@ public class NewItemFragment extends Fragment {
                 supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
                 supplyvalues.put("itemid", getProfilesCount());
                 database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+
+                database.endTransaction();
 
                 Toast toast = Toast.makeText(act, "Товар успешно добавлен", Toast.LENGTH_SHORT);
                 clearforms();
