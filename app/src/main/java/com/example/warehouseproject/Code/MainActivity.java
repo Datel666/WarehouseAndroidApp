@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     public SQLiteDatabase database;
     public DBHelper helper;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,15 +57,22 @@ public class MainActivity extends AppCompatActivity {
                             selectedFragment = new NewItemFragment();
                             break;
                         case R.id.nav_search:
-                            selectedFragment = new SearchFragment();
+                            intent = new Intent("com.example.warehouseproject.Code.scannerActivity");
+
                             break;
                         case R.id.nav_history:
                             selectedFragment = new HistoryFragment();
                             break;
                         }
+                        if(selectedFragment!=null)
+                        {
+                            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                                    selectedFragment).commit();
+                        }
+                        else{
+                            startActivity(intent);
+                        }
 
-                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                                selectedFragment).commit();
                     return true;
                 }
             };

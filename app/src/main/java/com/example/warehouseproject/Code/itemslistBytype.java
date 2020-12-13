@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.warehouseproject.Adapters.ExpandableListAdapter;
@@ -24,6 +25,8 @@ import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.Paginator;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ public class itemslistBytype extends AppCompatActivity {
     private Button prevBtn;
     private Button showfiltersBtn;
     private EditText searchF;
+    private TextView itemtypetextview;
 
 
     // Переменные
@@ -180,6 +184,7 @@ public class itemslistBytype extends AppCompatActivity {
         settings = findViewById(R.id.settingsList);
         ehgrid = (ExpandableHeightGridView) findViewById(R.id.ehgridview);
         searchF = (EditText) findViewById(R.id.searchField);
+        itemtypetextview = (TextView) findViewById(R.id.itemstypeTextView);
     }
 
     /**
@@ -193,6 +198,7 @@ public class itemslistBytype extends AppCompatActivity {
         intent = getIntent();
         action = intent.getAction();
         itemtype = switchAction(action, itemtypes);
+        itemtypetextview.setText(itemtype);
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<CheckBox>>();
         selectionBuilder  = new String[2];
@@ -310,10 +316,11 @@ public class itemslistBytype extends AppCompatActivity {
             int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
             int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
             int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
+            int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
 
             do {
 
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex)));
+                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex)));
             }
             while (cursor.moveToNext());
         } else {
@@ -364,10 +371,11 @@ public class itemslistBytype extends AppCompatActivity {
             int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
             int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
             int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
+            int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
 
             do {
 
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex)));
+                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex)));
             }
             while (cursor.moveToNext());
         } else {
@@ -500,17 +508,22 @@ public class itemslistBytype extends AppCompatActivity {
                 ehgrid.setVisibility(View.VISIBLE);
                 break;
             case View.INVISIBLE:
-                ehgrid.setFocusable(false);
-                ehgrid.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                ehgrid.setEnabled(false);
-                ehgrid.setVisibility(View.INVISIBLE);
 
-                settings.setFocusable(true);
-                settings.setItemsCanFocus(true);
-                settings.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-                settings.setEnabled(true);
-                settings.setVisibility(View.VISIBLE);
-                break;
+                if(!filtersettings[0].equals("")) {
+                    ehgrid.setFocusable(false);
+                    ehgrid.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                    ehgrid.setEnabled(false);
+                    ehgrid.setVisibility(View.INVISIBLE);
+
+
+                    settings.setFocusable(true);
+                    settings.setItemsCanFocus(true);
+                    settings.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                    settings.setEnabled(true);
+                    settings.setVisibility(View.VISIBLE);
+                    break;
+                }
+
         }
     }
 

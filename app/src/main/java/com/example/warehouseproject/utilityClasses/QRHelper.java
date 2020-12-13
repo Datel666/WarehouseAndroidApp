@@ -8,15 +8,15 @@ import java.io.ByteArrayOutputStream;
 
 public class QRHelper {
 
-    public byte[] imagetobyte (Bitmap bmp) {
+    public static byte[] imagetobyte (Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
         return imageBytes;
 
     }
 
-    public Bitmap BitMapToString(byte[] bytes) {
+    public static Bitmap BitMapToString(byte[] bytes) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         return bitmap;
     }

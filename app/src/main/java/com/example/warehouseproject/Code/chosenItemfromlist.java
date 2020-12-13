@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -98,6 +100,11 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemdescription.setText(info.description);
         itemcount.setText(info.count);
         itemtype.setText(info.type);
+        itemImage.setImageBitmap(bytetoimage(info.photo));
+    }
+    private Bitmap bytetoimage(byte[] bytearr){
+        Bitmap bmp = BitmapFactory.decodeByteArray(bytearr, 0, bytearr.length);
+        return bmp;
     }
 
     private void updateforms(item info) {
@@ -130,9 +137,10 @@ public class chosenItemfromlist extends AppCompatActivity {
         int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
         int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
         int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
+        int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
         int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
 
-        ItemInfo = new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex));
+        ItemInfo = new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex));
         return ItemInfo;
     }
 

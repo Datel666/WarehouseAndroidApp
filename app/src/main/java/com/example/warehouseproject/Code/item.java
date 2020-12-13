@@ -1,14 +1,28 @@
 package com.example.warehouseproject.Code;
 
+import android.graphics.Bitmap;
+
 public class item {
 
 
-    public item(int _id, String _str, String _type, String _count, String _description) {
+    public item(int _id, String _str, String _type, String _count, String _description,byte[] _photo) {
         id = _id;
         name = _str;
         count = _count;
         type = _type;
         description = _description;
+        photo = _photo;
+    }
+
+
+    public byte[] photo;
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
     public int id;

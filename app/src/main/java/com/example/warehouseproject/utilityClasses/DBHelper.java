@@ -19,7 +19,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + KEY_ITEMTYPE + " text,"
                 + KEY_ITEMNAME + " text,"
                 + KEY_COUNT + " text,"
-                + KEY_DESCRIPTION + " text" + ")" );
+                + KEY_DESCRIPTION + " text,"
+                + KEY_ITEMPHOTO + " blob " + ")" );
         db.execSQL("create table "
                 + TABLE_SUPPLY + "("
                 + KEY_ID2 + " integer primary key autoincrement, "
@@ -38,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public static final int DATABASE_VERSION = 12;
+    public static final int DATABASE_VERSION = 15;
 
     public static final String DATABASE_NAME = "warehouse";
     public static final String TABLE_WAREHOUSE = "itemtable";
@@ -46,6 +47,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String KEY_QR = "itemqr";
     public static final String KEY_ITEMTYPE = "itemtype";
     public static final String KEY_ITEMNAME = "itemname";
+    public static final String KEY_ITEMPHOTO = "itemphoto";
     public static final String KEY_COUNT = "count";
     public static final String KEY_DESCRIPTION = "description";
 
