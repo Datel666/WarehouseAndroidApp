@@ -23,13 +23,6 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             />
-        <activity android:name=".Code.scannerActivity">
-            <intent-filter>
-                <action android:name="com.example.warehouseproject.Code.scannerActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".Code.chosenItemfromlist">
             <intent-filter>
                 <action android:name="com.example.warehouseproject.Code.chosenItemfromlistActivity" />

@@ -6,11 +6,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,6 +56,14 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view =  inflater.inflate(R.layout.fragment_history,container,false);
 
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         initializeViews();
         initializeValues();
 
@@ -72,10 +84,42 @@ public class HistoryFragment extends Fragment {
                 bindData(currentpage);
             }
         });
-        return view;
+
+        searchF.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchF.removeTextChangedListener(this);
+                if (!database.isOpen()) {
+                    database = helper.getWritableDatabase();
+                }
+                queryResults = loadinfofiltered();
+                paginator = new HistoryPaginator((ArrayList<historyitem>) queryResults);
+                totalpages = paginator.getTotalPages();
+                currentpage = 0;
+                toggleButtons();
+                bindData(currentpage);
+                ehgrid.setExpanded(true);
+                if (ehgrid.getCount() == 0) {
+                    Toast toast = Toast.makeText(getContext(), "Предметов по заданному запросу не найдено", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+
+                searchF.addTextChangedListener(this);
+
+            }
+        });
     }
-
-
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -104,7 +148,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private List<historyitem> loadinfo(){
-
+        String operation = "";
         if(!database.isOpen()){
             database = helper.getWritableDatabase();
         }
@@ -115,13 +159,52 @@ public class HistoryFragment extends Fragment {
         if (cursor.moveToFirst()) {
             int operationIndex = cursor.getColumnIndex(DBHelper.KEY_SUPPLYTYPE);
             int vendorIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMVENDOR);
-            int typeIndex = cursor.getColumnIndex("itemtype");
-            int nameIndex = cursor.getColumnIndex("itemname");
+            int typeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
+            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
             int countIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT2);
 
             do {
+                if(cursor.getString(operationIndex).equals("+")){
+                    operation = "Импорт";
+                }
+                else{
+                    operation = "Экспорт";
+                }
+                res.add(new historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex)));
+            }
+            while (cursor.moveToNext());
+        } else {
+        }
+        return res;
+    }
 
-                res.add(new historyitem(cursor.getString(operationIndex),cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex)));
+    private List<historyitem> loadinfofiltered(){
+        String operation = "";
+        String operationsearch = "";
+        operationsearch = searchF.getText().toString().contains("Импорт") ? "+" : "-";
+        if(!database.isOpen()){
+            database = helper.getWritableDatabase();
+        }
+        List<historyitem> res = new ArrayList<>();
+        Cursor cursor = database.rawQuery("SELECT * FROM " + DBHelper.TABLE_SUPPLY + " a JOIN ( SELECT itemid, "+ DBHelper.KEY_ITEMNAME + " as itemname ," + DBHelper.KEY_ITEMTYPE+ " " +
+                "as itemtype FROM " + DBHelper.TABLE_WAREHOUSE + ") b  on a.itemid = b.itemid WHERE instr(itemname," + "'" + searchF.getText().toString() + "'" + ") > 0 " +
+                "OR instr(supplytype," + "'" + operationsearch + "'" + ") > 0" + " OR instr(itemvendor," + "'" + searchF.getText().toString() + "'" + ") > 0",null);
+
+        if (cursor.moveToFirst()) {
+            int operationIndex = cursor.getColumnIndex(DBHelper.KEY_SUPPLYTYPE);
+            int vendorIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMVENDOR);
+            int typeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
+            int nameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
+            int countIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT2);
+
+            do {
+                if(cursor.getString(operationIndex).equals("+")){
+                    operation = "Импорт";
+                }
+                else{
+                    operation = "Экспорт";
+                }
+                res.add(new historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex)));
             }
             while (cursor.moveToNext());
         } else {

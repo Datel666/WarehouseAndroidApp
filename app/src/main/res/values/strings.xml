@@ -17,6 +17,11 @@
         <item>Сортировать по: Наименованию</item>
     </string-array>
 
+    <string-array name="searchsortTypes">
+        <item>Сортировать по: Наименованию</item>
+        <item>Сортировать по: Типу товара</item>
+    </string-array>
+
     <string-array name="itemTypes">
         <item>Процессор</item>
         <item>Материнская плата</item>
