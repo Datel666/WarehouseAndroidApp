@@ -1,28 +1,28 @@
 package com.example.warehouseproject.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 import com.example.warehouseproject.Code.historyitem;
 import com.example.warehouseproject.R;
-
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class historyItemAdapter extends BaseAdapter {
+/**
+ * historyItemAdapter class
+ *
+ * Данный класс описывает методы для получения экземпляра класса View из указанных составляющих
+ * для последующего использования данного View в качестве предмета структуры ExpandableListView
+ */
+public class HistoryItemAdapter extends BaseAdapter {
 
     private Context mContext;
-
-
     private List<historyitem> items;
 
-    public historyItemAdapter(Context c,  ArrayList<historyitem> _items ) {
+    public HistoryItemAdapter(Context c, ArrayList<historyitem> _items ) {
         mContext = c;
 
         items=_items;
@@ -32,8 +32,6 @@ public class historyItemAdapter extends BaseAdapter {
         // TODO Auto-generated method stub
         return items.size();
     }
-
-
 
     @Override
     public Object getItem(int position) {

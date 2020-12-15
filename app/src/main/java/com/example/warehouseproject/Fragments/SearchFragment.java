@@ -2,7 +2,6 @@ package com.example.warehouseproject.Fragments;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,29 +14,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.example.warehouseproject.Adapters.itemAdapter;
-import com.example.warehouseproject.Code.Capture;
-import com.example.warehouseproject.Code.item;
+import com.example.warehouseproject.Adapters.ItemAdapter;
+import com.example.warehouseproject.Code.Item;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.Paginator;
+
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -58,7 +52,7 @@ public class SearchFragment extends Fragment {
 
     private int totalpages;
     private int currentpage;
-    private List<item> queryResults;
+    private List<Item> queryResults;
     private List<Integer> queryQRS;
 
 
@@ -146,13 +140,13 @@ public class SearchFragment extends Fragment {
         helper = new DBHelper(con);
         database = helper.getWritableDatabase();
 
-        queryResults = new ArrayList<item>();
+        queryResults = new ArrayList<Item>();
         queryQRS = new ArrayList<Integer>();
     }
 
-    public List<item> rawquery(SQLiteDatabase db) {
+    public List<Item> rawquery(SQLiteDatabase db) {
         Cursor cursor = db.rawQuery("Select * from itemtable order by itemname", new String[]{});
-        List<item> res = new ArrayList<>();
+        List<Item> res = new ArrayList<>();
         if (cursor.moveToFirst()) {
             int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
             int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
@@ -163,7 +157,7 @@ public class SearchFragment extends Fragment {
 
             do {
 
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex), cursor.getBlob(itemphotoIndex)));
+                res.add(new Item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex), cursor.getBlob(itemphotoIndex)));
             }
             while (cursor.moveToNext());
         } else {
@@ -171,11 +165,11 @@ public class SearchFragment extends Fragment {
         return res;
     }
 
-    public List<item> filteredqueries(SQLiteDatabase db) {
+    public List<Item> filteredqueries(SQLiteDatabase db) {
 
         Cursor cursor = db.rawQuery("Select * from itemtable WHERE instr(count," + "'" + searchF.getText().toString() + "'" + ") > 0 OR  instr(itemname," + "'" + searchF.getText().toString() + "'" + ") > 0 OR " +
                 "instr(description," + "'" + searchF.getText().toString() + "'" + ") > 0 OR instr(itemtype," + "'" + searchF.getText().toString() + "'" + ") > 0  order by itemname", new String[]{});
-        List<item> res = new ArrayList<>();
+        List<Item> res = new ArrayList<>();
         if (cursor.moveToFirst()) {
             int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
             int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
@@ -186,7 +180,7 @@ public class SearchFragment extends Fragment {
 
             do {
 
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex), cursor.getBlob(itemphotoIndex)));
+                res.add(new Item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex), cursor.getBlob(itemphotoIndex)));
             }
             while (cursor.moveToNext());
         } else {
@@ -227,12 +221,12 @@ public class SearchFragment extends Fragment {
      * @param page
      */
     private void bindData(int page) {
-        itemAdapter adapter = new itemAdapter(con, paginator.getCurrentGalaxys(page));
+        ItemAdapter adapter = new ItemAdapter(con, paginator.getCurrentGalaxys(page));
         ehgrid.setAdapter(adapter);
     }
 
     /**
-     * Изменение состояний кнопок, используемых для изменения текущей страницы списка товаров
+     * Изменение состояний кнопок, используемых для изменения текущей страницы истории
      */
     private void toggleButtons() {
         //SINGLE PAGE DATA
@@ -258,21 +252,12 @@ public class SearchFragment extends Fragment {
     }
 
     public void scanClick() {
-        //IntentIntegrator intentIntegrator = new IntentIntegrator(SearchFragment.this.getActivity());
         Intent intent = new IntentIntegrator(SearchFragment.this.getActivity()).createScanIntent();
         intent.setAction(Intents.Scan.ACTION);
         intent.putExtra("SCAN_MODE","QR_CODE_MODE");
 
         intent.putExtra("RESULT_DISPLAY_DURATION_MS",0L);
         startActivityForResult(intent,0);
-
-        //intentIntegrator.setPrompt("For flash use volume up key");
-
-        //intentIntegrator.setBeepEnabled(true);
-        //intentIntegrator.setOrientationLocked(true);
-        //intentIntegrator.setCaptureActivity(Capture.class);
-
-        //intentIntegrator.initiateScan();
     }
 
 
@@ -280,10 +265,8 @@ public class SearchFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         database.close();
-        //IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(requestCode==0)
         {
-            //String id = intentResult.getContents();
             String id = data.getStringExtra("SCAN_RESULT");
             if(isNumeric(id)) {
                 Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");

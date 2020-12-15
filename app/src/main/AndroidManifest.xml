@@ -30,7 +30,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".Code.itemslistBytype">
+        <activity android:name=".Code.ItemslistBytype">
             <intent-filter>
                 <action android:name="com.example.warehouseproject.Code.processorsActivity" />
                 <action android:name="com.example.warehouseproject.Code.motherboardsActivity" />

@@ -6,34 +6,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.warehouseproject.Code.item;
+import com.example.warehouseproject.Code.Item;
 import com.example.warehouseproject.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class itemAdapter extends BaseAdapter {
+/**
+ * ItemAdapter class
+ *
+ * Данный класс описывает методы для получения экземпляра класса View из указанных составляющих
+ *  * для последующего использования данного View в качестве предмета структуры ExpandableListView
+ */
+public class ItemAdapter extends BaseAdapter {
 
     private Context mContext;
+    private List<Item> Items;
 
-    private Bitmap[] bitmaps;
-    private List<item> items;
-
-    public itemAdapter(Context c,  ArrayList<item> _items ) {
+    public ItemAdapter(Context c, ArrayList<Item> _items ) {
         mContext = c;
-        //bitmaps = _bitmaps;
-        items=_items;
+        Items =_items;
     }
 
     public int getCount() {
         // TODO Auto-generated method stub
-        return items.size();
+        return Items.size();
     }
-
-
 
     @Override
     public Object getItem(int position) {
@@ -55,20 +55,14 @@ public class itemAdapter extends BaseAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         if (convertView == null) {
-
             grid = new View(mContext);
             grid = inflater.inflate(R.layout.itemsgrid, null);
             TextView name = (TextView) grid.findViewById(R.id.itemnameContainer);
             TextView type = (TextView) grid.findViewById(R.id.itemtypeContainer) ;
             TextView count = (TextView) grid.findViewById(R.id.itemcountContainer);
-            //TextView description = (TextView) grid.findViewById(R.id.descriptionContainer);
-            //ImageView imageView = (ImageView) grid.findViewById(R.id.imageContainer);
-            //imageView.setAdjustViewBounds(true);
-            name.setText(items.get(position).name);
-            type.setText(items.get(position).type);
-            count.setText(items.get(position).count);
-            //description.setText(items.get(position).description);
-            //imageView.setImageResource(R.mipmap.ic_launcher);
+            name.setText(Items.get(position).name);
+            type.setText(Items.get(position).type);
+            count.setText(Items.get(position).count);
         } else {
             grid = (View) convertView;
         }

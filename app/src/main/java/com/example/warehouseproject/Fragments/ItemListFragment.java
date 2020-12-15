@@ -1,7 +1,6 @@
 package com.example.warehouseproject.Fragments;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,14 +17,20 @@ import com.example.warehouseproject.Adapters.ImageTextAdapter;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 
-import java.util.zip.Inflater;
 
+/**
+ * ItemListFragment class
+ *
+ * Описывает функционал для fragment_itemlist layout
+ */
 public class ItemListFragment extends Fragment {
+
+    //region variables
     View view;
     ExpandableHeightGridView gridView;
     Context act;
     Intent intent;
-
+    //endregion
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

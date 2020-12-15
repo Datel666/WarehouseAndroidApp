@@ -14,6 +14,12 @@ import com.example.warehouseproject.R;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * ExpandableListAdapter class
+ *
+ * Данный класс описывает методы для получения экземпляра класса View из указанных составляющих
+ * для последующего использования данного View в качестве предмета структуры ExpandableListView
+ */
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;

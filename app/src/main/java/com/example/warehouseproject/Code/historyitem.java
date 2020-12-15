@@ -1,5 +1,10 @@
 package com.example.warehouseproject.Code;
 
+/**
+ * historyitem class
+ *
+ * Данный класс описывает структуру записи в истории импорта и экспорта товаров
+ */
 public class historyitem {
 
 

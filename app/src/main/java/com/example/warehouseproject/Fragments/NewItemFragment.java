@@ -12,10 +12,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,19 +37,22 @@ import androidx.fragment.app.Fragment;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.QRHelper;
 import com.example.warehouseproject.R;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 
+/**
+ * NewItemFragment class
+ * <p>
+ * Описывает функционал для fragment_newitem layout
+ */
 public class NewItemFragment extends Fragment {
 
-
+    //region variables
     SQLiteDatabase database;
     DBHelper helper;
     QRHelper qrhelper;
@@ -72,6 +73,7 @@ public class NewItemFragment extends Fragment {
 
     ImageView itemphoto;
     Bitmap itemphotobytes;
+    //endregion
 
     @Nullable
     @Override
@@ -81,18 +83,16 @@ public class NewItemFragment extends Fragment {
         initializeValues();
         initializeViews();
 
-
         itemdescription.setText(filters[0]);
+
+        // Слушатель события изменения текта в поле описания товара
         itemdescription.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-
             }
 
             @Override
@@ -129,12 +129,10 @@ public class NewItemFragment extends Fragment {
                         return;
                     }
                 }
-
-
             }
         });
 
-
+        // Слушатель события изменения типа товара посредством spinner
         itemtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -180,7 +178,6 @@ public class NewItemFragment extends Fragment {
                 }
                 itemdescription.setText("");
                 itemdescription.append(filters[0]);
-
             }
 
             @Override
@@ -189,6 +186,7 @@ public class NewItemFragment extends Fragment {
             }
         });
 
+        // Слушатель события нажатия на кнопку "новый товар"
         newitemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,20 +211,18 @@ public class NewItemFragment extends Fragment {
                     database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
 
                     database.setTransactionSuccessful();
-                }
-                catch(Exception ex)
-                {
-                    Toast toast = Toast.makeText(act.getApplicationContext(),ex.getMessage().toString(),Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER,0,0);
+                } catch (Exception ex) {
+                    Toast toast = Toast.makeText(act.getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
-                }
-                finally{
+                } finally {
                     database.endTransaction();
                 }
 
-
-
                 Toast toast = Toast.makeText(act, "Товар успешно добавлен", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+
                 clearforms();
 
             }
@@ -243,6 +239,9 @@ public class NewItemFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Инициализация форм
+     */
     private void initializeViews() {
         itemname = (EditText) view.findViewById(R.id.itemName);
         itemtype = (Spinner) view.findViewById(R.id.itemType);
@@ -257,11 +256,14 @@ public class NewItemFragment extends Fragment {
         itemphoto = (ImageView) view.findViewById(R.id.newitemPhoto);
     }
 
+    /**
+     * Инициализация значений переменных
+     */
     private void initializeValues() {
         helper = new DBHelper(act);
         database = helper.getWritableDatabase();
 
-        itemphotobytes =  BitmapFactory.decodeResource(getResources(), R.drawable.processors);
+        itemphotobytes = BitmapFactory.decodeResource(getResources(), R.drawable.processors);
         filters = getResources().getStringArray(R.array.processorfilters);
     }
 
@@ -269,28 +271,21 @@ public class NewItemFragment extends Fragment {
         return (str.length() - str.replace(target, "").length()) / target.length();
     }
 
-    private byte[] imagetobytearr(ImageView vie){
-        Bitmap bitmap = ((BitmapDrawable) vie.getDrawable()).getBitmap();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] imageInByte = baos.toByteArray();
-        try {
-            baos.close();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        return imageInByte;
-    }
-
+    /**
+     * Очистка форм приложения
+     */
     public void clearforms() {
         itemname.setText("");
-
         itemvendor.setText("");
         itemcount.setText("");
         itemdescription.setText("");
     }
 
+    /**
+     * Получение последнего идентификатора в таблице товаров
+     *
+     * @return последний идентификатор
+     */
     public long getProfilesCount() {
         long count;
         c = database.rawQuery("SELECT COALESCE(MAX(itemid), 1) AS pls FROM itemtable", null);
@@ -300,6 +295,12 @@ public class NewItemFragment extends Fragment {
         return count;
     }
 
+    /**
+     * Генерация QR-кода для указанного идентификатора товара
+     *
+     * @param id идентификатор товара
+     * @return QR-код представленный в виде строки base64
+     */
     public String printQR(String id) {
         QRCodeWriter writer = new QRCodeWriter();
         try {
@@ -320,6 +321,9 @@ public class NewItemFragment extends Fragment {
         }
     }
 
+    /**
+     * Выбор изображения для товара из галереи снимков устройства
+     */
     public void pickImage() {
         if (ActivityCompat.checkSelfPermission(act.getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 111);
@@ -330,13 +334,19 @@ public class NewItemFragment extends Fragment {
         startActivityForResult(photoPickerIntent, 111);
     }
 
-
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         act = context;
     }
 
+    /**
+     * Обработчик результата выбора изображения для товара из галерии снимков устройства
+     *
+     * @param requestCode код запроса
+     * @param resultCode  результирующий код
+     * @param data        данные полученные в рамках активности
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
@@ -347,7 +357,6 @@ public class NewItemFragment extends Fragment {
                     Uri selectedImage = data.getData();
                     try {
                         itemphotobytes = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), selectedImage);
-                        //Bitmap bitmap = handleSamplingAndRotationBitmap(act.getApplicationContext(),selectedImage);
                         itemphoto.setImageBitmap(itemphotobytes);
                     } catch (IOException e) {
                         Log.i("TAG", "Some exception " + e);
@@ -355,7 +364,5 @@ public class NewItemFragment extends Fragment {
                     break;
             }
     }
-
-
 }
 

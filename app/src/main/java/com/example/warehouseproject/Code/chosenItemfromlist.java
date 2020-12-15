@@ -4,28 +4,26 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.warehouseproject.Code.item;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.utilityClasses.DBHelper;
+import com.example.warehouseproject.utilityClasses.QRHelper;
+import com.example.warehouseproject.utilityClasses.QueriesProcessor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
+/**
+ * chosenItemfromlist class
+ *
+ * Класс содержит функционал для chosenItemfromlist layout
+ */
 public class chosenItemfromlist extends AppCompatActivity {
 
     //region variables
@@ -33,8 +31,10 @@ public class chosenItemfromlist extends AppCompatActivity {
     private String action;
     private String[] itemtypes;
     private DBHelper helper;
+    private QueriesProcessor qprocessor;
     private SQLiteDatabase database;
-    private item Item;
+    private QRHelper qhelper;
+    private com.example.warehouseproject.Code.Item Item;
 
     private EditText itemname;
     private EditText itemdescription;
@@ -43,40 +43,48 @@ public class chosenItemfromlist extends AppCompatActivity {
     private EditText itemtype;
     private EditText itemvendor;
 
-    private Button performoperation;
     private Button changeinformation;
     private Button decline;
     private Button apply;
-    private Button deleteitem;
 
     private Spinner operationtype;
-
     private ImageView itemImage;
-//endregion
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chosen_itemfromlist);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         initialiseViews();
         initializeValues();
         fillforms(Item);
+
     }
 
     //region utility
+
+    /**
+     * Инициализация значений переменных
+     */
     private void initializeValues() {
-
         helper = new DBHelper(this);
-
+        qprocessor = new QueriesProcessor();
         database = helper.getWritableDatabase();
         itemtypes = getResources().getStringArray(R.array.itemTypes);
         intent = getIntent();
         action = intent.getAction();
-        Item = getitemInformation(Integer.parseInt(intent.getStringExtra("itemid")));
-
+        Item = qprocessor.getitemInformation(Integer.parseInt(intent.getStringExtra("itemid")), database);
     }
 
+    /**
+     * Иницализация форм
+     */
     private void initialiseViews() {
         itemname = (EditText) findViewById(R.id.itemnameEdit);
         itemdescription = (EditText) findViewById(R.id.descriptionEdit);
@@ -85,33 +93,39 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemtype = (EditText) findViewById(R.id.itemtypeEdit);
         itemvendor = (EditText) findViewById(R.id.vendorEdit);
 
-        performoperation = (Button) findViewById(R.id.performOperationBtn);
         changeinformation = (Button) findViewById(R.id.changeinformationBtn);
         decline = (Button) findViewById(R.id.declineBtn);
         apply = (Button) findViewById(R.id.applyBtn);
-        deleteitem = (Button) findViewById(R.id.deleteitemBtn);
 
         itemImage = (ImageView) findViewById(R.id.itemPhoto);
         operationtype = (Spinner) findViewById(R.id.operationChooser);
     }
 
-    private void fillforms(item info) {
+    /**
+     * Первичное заполнение форм информацией о текущем товаре
+     * @param info информация о товаре
+     */
+    private void fillforms(com.example.warehouseproject.Code.Item info) {
         itemname.setText(info.name);
         itemdescription.setText(info.description);
         itemcount.setText(info.count);
         itemtype.setText(info.type);
-        itemImage.setImageBitmap(bytetoimage(info.photo));
-    }
-    private Bitmap bytetoimage(byte[] bytearr){
-        Bitmap bmp = BitmapFactory.decodeByteArray(bytearr, 0, bytearr.length);
-        return bmp;
+        itemImage.setImageBitmap(qhelper.bytetoimage(info.photo));
     }
 
-    private void updateforms(item info) {
+    /**
+     * Обновление информации о товаре, находящейся в формах приложения
+     * @param info информация о товаре
+     */
+    private void updateforms(com.example.warehouseproject.Code.Item info) {
         Item = info;
         fillforms(Item);
     }
 
+    /**
+     * Переключение режима форм между в активный режим и наоборот
+     * @param enabled значение свойства активности
+     */
     private void setformsenabled(boolean enabled) {
         decline.setEnabled(enabled);
         apply.setEnabled(enabled);
@@ -119,48 +133,42 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemdescription.setEnabled(enabled);
         changeinformation.setEnabled(!enabled);
     }
-
     //endregion
 
-    //region queriesLogic
-    private item getitemInformation(int itemid) {
-        Cursor cursor;
-        item ItemInfo;
-        if (!database.isOpen()) {
-            database = helper.getWritableDatabase();
-        }
-        String queryString = "SELECT * FROM " + DBHelper.TABLE_WAREHOUSE + " WHERE " + DBHelper.KEY_ID + "=" + String.valueOf(itemid);
-        cursor = database.rawQuery(queryString, null);
+    //region easyqueriesLogic
 
-        cursor.moveToFirst();
-        int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-        int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
-        int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
-        int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
-        int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
-        int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
-
-        ItemInfo = new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex));
-        return ItemInfo;
-    }
-
+    /**
+     *  Логика запроса по обновлению значения количества товара в базе данных товаров
+     * @param itemid идентификатор товара
+     */
     private void updateitemCount(int itemid) {
-        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "=" + String.valueOf(Integer.parseInt(itemcount.getText().toString()) + Integer.parseInt(operationcount.getText().toString())) +
+        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
+                + String.valueOf(Integer.parseInt(itemcount.getText().toString())
+                + Integer.parseInt(operationcount.getText().toString())) +
                 " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
         database.rawQuery(queryString, null);
     }
 
+    /**
+     * Логика запроса по обновлению значений названия и описания товара в базе данных товаров
+     * @param itemid
+     */
     private void updateitemInfo(int itemid) {
-        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_ITEMNAME + "=" + itemname.getText().toString() + "," + DBHelper.KEY_DESCRIPTION + "=" + itemdescription.getText().toString() +
+        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET "
+                + DBHelper.KEY_ITEMNAME + "=" + itemname.getText().toString()
+                + "," + DBHelper.KEY_DESCRIPTION + "="
+                + itemdescription.getText().toString() +
                 " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
         database.rawQuery(queryString, null);
     }
 
-
+    /**
+     * Логика создания новой записи импорта или экспорта товара в базе данных поставок
+     * @param itemid идентификатор товара
+     */
     private void updateSupplyTable(int itemid) {
         String operation = "";
         String size = operationtype.getSelectedItem().toString();
-
         switch (size) {
             case "Импорт товара":
                 operation = "+";
@@ -171,7 +179,6 @@ public class chosenItemfromlist extends AppCompatActivity {
             default:
                 operation = "";
         }
-
         ContentValues supplyvalues = new ContentValues();
         supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, operation);
         supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
@@ -181,13 +188,22 @@ public class chosenItemfromlist extends AppCompatActivity {
         database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
     }
 
-    private void deleteItem(int itemid){
-        database.delete(DBHelper.TABLE_WAREHOUSE,DBHelper.KEY_ID + "=?",new String[]{String.valueOf(itemid)});
+    /**
+     * Логика удаления товара из базы данных товаров
+     * @param itemid идентификатор товара
+     */
+    private void deleteItem(int itemid) {
+        database.delete(DBHelper.TABLE_WAREHOUSE, DBHelper.KEY_ID + "=?", new String[]{String.valueOf(itemid)});
     }
 
     //endregion
 
     //region BtnsRegion
+
+    /**
+     * Обработщик события нажатия на кнопку выполнить операцию импорта или экспорта
+     * @param view ссылка на кнопку
+     */
     public void performOperationClick(View view) {
 
         if (!database.isOpen()) {
@@ -211,12 +227,14 @@ public class chosenItemfromlist extends AppCompatActivity {
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
-        Item = getitemInformation(Item.id);
+        Item = qprocessor.getitemInformation(Item.id, database);
         updateforms(Item);
     }
 
-
-
+    /**
+     * Обработчик события нажатия на кнопку изменить информацию о товаре
+     * @param view ссылка на кнопку
+     */
     public void changeinformationClick(View view) {
         changeinformation.setEnabled(false);
         decline.setEnabled(true);
@@ -225,11 +243,19 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemdescription.setEnabled(true);
     }
 
+    /**
+     * Обработчик события нажатия на кнопку отменить изменения имени и описания товара
+     * @param view ссылка на кнопку
+     */
     public void declineClick(View view) {
         setformsenabled(false);
         fillforms(Item);
     }
 
+    /**
+     * Обработчик события нажатия на кнопку подтвердить изменения имени и описания товара
+     * @param view ссылка на кнопку
+     */
     public void applyClick(View view) {
         setformsenabled(false);
 
@@ -248,25 +274,27 @@ public class chosenItemfromlist extends AppCompatActivity {
             database.endTransaction();
         }
 
-        Item = getitemInformation(Item.id);
+        Item = qprocessor.getitemInformation(Item.id, database);
         updateforms(Item);
     }
 
+    /**
+     * Обработчик события нажатия на кнопку удалить товар из базы данных
+     * @param view ссылка на кнопку
+     */
     public void deleteClick(View view) {
-        if(!database.isOpen()){
+        if (!database.isOpen()) {
             database = helper.getWritableDatabase();
         }
-        try{
+        try {
             database.beginTransaction();
             deleteItem(Item.id);
             database.setTransactionSuccessful();
-        }
-        catch(Exception ex){
-            Toast toast = Toast.makeText(getApplicationContext(),ex.getMessage().toString(),Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER,0,0);
+        } catch (Exception ex) {
+            Toast toast = Toast.makeText(getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
-        }
-        finally{
+        } finally {
             database.endTransaction();
             this.finish();
         }

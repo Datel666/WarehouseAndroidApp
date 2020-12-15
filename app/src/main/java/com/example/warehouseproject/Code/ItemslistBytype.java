@@ -20,22 +20,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.warehouseproject.Adapters.ExpandableListAdapter;
-import com.example.warehouseproject.Adapters.itemAdapter;
+import com.example.warehouseproject.Adapters.ItemAdapter;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.Paginator;
+import com.example.warehouseproject.utilityClasses.QueriesProcessor;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * itemlistByType class
+ *
+ * Класс содержит функционал для itemlist_bytype layout
+ */
+public class ItemslistBytype extends AppCompatActivity {
 
-public class itemslistBytype extends AppCompatActivity {
-
+    //region variables
     // Формы
     private ExpandableListAdapter listAdapter;
     private ExpandableHeightGridView ehgrid;
@@ -46,7 +49,6 @@ public class itemslistBytype extends AppCompatActivity {
     private EditText searchF;
     private TextView itemtypetextview;
 
-
     // Переменные
     private int totalpages;
     private int currentpage;
@@ -54,7 +56,7 @@ public class itemslistBytype extends AppCompatActivity {
     private String action;
 
     // Структуры
-    private List<item> queryResults;
+    private List<Item> queryResults;
     private List<Integer> queryQRS;
     private List<String> listDataHeader;
     private HashMap<String, List<CheckBox>> listDataChild;
@@ -66,7 +68,11 @@ public class itemslistBytype extends AppCompatActivity {
     private Paginator paginator;
     private SQLiteDatabase database;
     private DBHelper helper;
+    private QueriesProcessor qProcessor;
+
     private Intent intent;
+
+    //endregion
 
     /**
      * Создание формы
@@ -76,14 +82,12 @@ public class itemslistBytype extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itemslist_bytype);
-
-        // Инициализация форм
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        // Инициализация форм
         initializeViews();
         // Инициализация переменных, заполнение форм
         initializeValues();
@@ -94,6 +98,7 @@ public class itemslistBytype extends AppCompatActivity {
             Toast toast = Toast.makeText(this, "В базе данных нет записей по комплектующим с типом - " + itemtype.toString(), Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+
         }
 
         //Установка слушателей событий
@@ -193,6 +198,7 @@ public class itemslistBytype extends AppCompatActivity {
     private void initializeValues() {
 
         helper = new DBHelper(this);
+        qProcessor = new QueriesProcessor();
         database = helper.getWritableDatabase();
         itemtypes = getResources().getStringArray(R.array.itemTypes);
         intent = getIntent();
@@ -202,7 +208,7 @@ public class itemslistBytype extends AppCompatActivity {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<CheckBox>>();
         selectionBuilder  = new String[2];
-        queryResults = new ArrayList<item>();
+        queryResults = new ArrayList<Item>();
         queryQRS = new ArrayList<Integer>();
     }
 
@@ -211,7 +217,7 @@ public class itemslistBytype extends AppCompatActivity {
      * @param page
      */
     private void bindData(int page) {
-        itemAdapter adapter = new itemAdapter(this, paginator.getCurrentGalaxys(page));
+        ItemAdapter adapter = new ItemAdapter(this, paginator.getCurrentGalaxys(page));
         ehgrid.setAdapter(adapter);
     }
 
@@ -299,35 +305,6 @@ public class itemslistBytype extends AppCompatActivity {
         }
     }
 
-
-
-    /**
-     * Получение списка товаров определённого типа без использования фильтров
-     * @param itemtype тип товара
-     * @param db база данных
-     * @return  лист товаров определённого типа
-     */
-    public List<item> rawqueries(String itemtype, SQLiteDatabase db) {
-        Cursor cursor = db.rawQuery("Select * from itemtable where itemtype = ? order by itemname", new String[]{itemtype});
-        List<item> res = new ArrayList<>();
-        if (cursor.moveToFirst()) {
-            int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-            int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
-            int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
-            int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
-            int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
-            int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
-
-            do {
-
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex)));
-            }
-            while (cursor.moveToNext());
-        } else {
-        }
-        return res;
-    }
-
     /**
      * Генерация запросов в соответствии с выбранными фильтрами
      * @param itemtype тип товара
@@ -353,34 +330,6 @@ public class itemslistBytype extends AppCompatActivity {
         selection[1] = filterBuilder;
 
         return selection;
-
-    }
-
-    /**
-     * Получение списка товаров определенного типа с использованием фильтров
-     * @param db база данных
-     * @param selection массив с телом запроса
-     * @return лист товаров определённого типа в соответствии с фильтрами
-     */
-    public List<item> filteredqueries(SQLiteDatabase db,String[] selection) {
-        Cursor cursor = db.query(DBHelper.TABLE_WAREHOUSE, null, selection[0] + selection[1], null, null, null, "itemname");
-        List<item> res = new ArrayList<>();
-        if (cursor.moveToFirst()) {
-            int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
-            int itemtypeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
-            int itemnameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
-            int itemcountIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT);
-            int itemdescriptionIndex = cursor.getColumnIndex(DBHelper.KEY_DESCRIPTION);
-            int itemphotoIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMPHOTO);
-
-            do {
-
-                res.add(new item(cursor.getInt(itemidIndex), cursor.getString(itemnameIndex), cursor.getString(itemtypeIndex), cursor.getString(itemcountIndex), cursor.getString(itemdescriptionIndex),cursor.getBlob(itemphotoIndex)));
-            }
-            while (cursor.moveToNext());
-        } else {
-        }
-        return res;
     }
 
     /**
@@ -438,7 +387,7 @@ public class itemslistBytype extends AppCompatActivity {
     public void updateformsAccordingfilters() {
 
         selectionBuilder =  preparefilters(itemtype,searchF,listDataHeader,listDataChild);
-        queryResults =  filteredqueries(database,selectionBuilder);
+        queryResults =  qProcessor.filteredqueries(database,selectionBuilder);
         paginator = new Paginator((ArrayList) queryResults);
         totalpages = paginator.getTotalPages();
         currentpage = 0;
@@ -451,7 +400,7 @@ public class itemslistBytype extends AppCompatActivity {
      * Изменение форм используя значения "по умолчанию"
      */
     public void updateformsDefault(){
-        queryResults =  rawqueries(itemtype,database);
+        queryResults =  qProcessor.rawqueries(itemtype,database);
         paginator = new Paginator((ArrayList) queryResults);
         totalpages = paginator.getTotalPages();
         currentpage = 0;
@@ -459,7 +408,6 @@ public class itemslistBytype extends AppCompatActivity {
         bindData(currentpage);
         ehgrid.setExpanded(true);
     }
-
 
     //region buttonSection
     /**
@@ -527,7 +475,6 @@ public class itemslistBytype extends AppCompatActivity {
         }
     }
 
-
     /**
      * Событие нажатия кнопки "предыдущая страница" списка товаров
      * @param view
@@ -548,6 +495,5 @@ public class itemslistBytype extends AppCompatActivity {
         bindData(currentpage);
     }
     //endregion
-
 
 }

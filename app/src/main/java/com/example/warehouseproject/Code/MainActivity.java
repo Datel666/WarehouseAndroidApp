@@ -1,19 +1,14 @@
 package com.example.warehouseproject.Code;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
-import android.widget.Toast;
-
 import com.example.warehouseproject.Fragments.HistoryFragment;
 import com.example.warehouseproject.Fragments.HomeFragment;
 import com.example.warehouseproject.Fragments.ItemListFragment;
@@ -22,34 +17,56 @@ import com.example.warehouseproject.Fragments.SearchFragment;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
+/**
+ * MainActivity class
+ *
+ * Класс содержит функционал для activity_main layout
+ */
 public class MainActivity extends AppCompatActivity {
 
+
+    //region variables
     public SQLiteDatabase database;
     public DBHelper helper;
-    Intent intent;
-    Activity act;
-    Context con;
+    public Intent intent;
+    public Activity act;
+    public Context con;
+    public BottomNavigationView bottomNav;
 
+    //endregion
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initializeValues();
+        initializeViews();
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navbar);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
-        act = this;
-        con = getApplicationContext();
+
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
-
-        helper = new DBHelper(this);
-        database = helper.getWritableDatabase();
-
-
     }
 
+    /**
+     * Инициализация значений переменных
+     */
+    private void initializeValues(){
+        act = this;
+        con = getApplicationContext();
+        helper = new DBHelper(this);
+        database = helper.getWritableDatabase();
+    }
+
+    /**
+     * Инициализация форм
+     */
+    private void initializeViews(){
+        bottomNav = findViewById(R.id.bottom_navbar);
+    }
+
+    /**
+     * Обработчик взаимодействия с навигационной панелью
+     */
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
@@ -78,11 +95,7 @@ public class MainActivity extends AppCompatActivity {
                             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                                     selectedFragment).commit();
                         }
-
-
                     return true;
                 }
             };
-
-
 }

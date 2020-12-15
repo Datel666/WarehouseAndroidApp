@@ -1,11 +1,15 @@
 package com.example.warehouseproject.Code;
 
-import android.graphics.Bitmap;
-
-public class item {
 
 
-    public item(int _id, String _str, String _type, String _count, String _description,byte[] _photo) {
+/**
+ * item class
+ *
+ * Данный класс описывает структуру записи о товаре, хранящейся в базе данных
+ */
+public class Item {
+
+    public Item(int _id, String _str, String _type, String _count, String _description, byte[] _photo) {
         id = _id;
         name = _str;
         count = _count;
@@ -13,7 +17,6 @@ public class item {
         description = _description;
         photo = _photo;
     }
-
 
     public byte[] photo;
 
