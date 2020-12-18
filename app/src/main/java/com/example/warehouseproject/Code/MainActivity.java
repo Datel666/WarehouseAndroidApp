@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -38,7 +39,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         initializeValues();
         initializeViews();
 
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeViews(){
         bottomNav = findViewById(R.id.bottom_navbar);
     }
+
 
     /**
      * Обработчик взаимодействия с навигационной панелью

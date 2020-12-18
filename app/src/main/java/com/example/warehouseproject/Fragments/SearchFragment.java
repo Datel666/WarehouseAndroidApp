@@ -23,17 +23,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.warehouseproject.Adapters.ItemAdapter;
+import com.example.warehouseproject.Code.Capture;
 import com.example.warehouseproject.Code.Item;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.Paginator;
 
+import com.example.warehouseproject.utilityClasses.QueriesProcessor;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class SearchFragment extends Fragment {
@@ -51,6 +57,7 @@ public class SearchFragment extends Fragment {
     private SQLiteDatabase database;
     private DBHelper helper;
     private Intent intent;
+    private QueriesProcessor qprocessor;
 
     private int totalpages;
     private int currentpage;
@@ -153,7 +160,7 @@ public class SearchFragment extends Fragment {
 
         helper = new DBHelper(con);
         database = helper.getWritableDatabase();
-
+        qprocessor = new QueriesProcessor();
         queryResults = new ArrayList<Item>();
         queryQRS = new ArrayList<Integer>();
     }
@@ -279,25 +286,38 @@ public class SearchFragment extends Fragment {
         Intent intent = new IntentIntegrator(SearchFragment.this.getActivity()).createScanIntent();
         intent.setAction(Intents.Scan.ACTION);
         intent.putExtra("SCAN_MODE","QR_CODE_MODE");
-
         intent.putExtra("RESULT_DISPLAY_DURATION_MS",0L);
         startActivityForResult(intent,0);
     }
 
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        database.close();
-        if(requestCode==0)
+
+        if(requestCode==0 && resultCode == RESULT_OK)
         {
-            String id = data.getStringExtra("SCAN_RESULT");
-            if(isNumeric(id)) {
-                Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");
-                chosenitemIntent.putExtra("itemid", id);
-                startActivity(chosenitemIntent);
+            if(qprocessor.itemExit(database,data.getStringExtra("SCAN_RESULT"))) {
+                String id = data.getStringExtra("SCAN_RESULT");
+                if (isNumeric(id)) {
+                    Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");
+                    chosenitemIntent.putExtra("itemid", id);
+                    startActivity(chosenitemIntent);
+                }
             }
-        } else {
+            else{
+
+                Toast toast = Toast.makeText(con, "Записей по данному запросу не найдено", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                return;
+
+            }
+
+
+        }
+         else {
             Toast toast = Toast.makeText(con, "Сканирование не удалось", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();

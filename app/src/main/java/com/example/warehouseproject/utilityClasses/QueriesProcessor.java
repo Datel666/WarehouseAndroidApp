@@ -96,6 +96,20 @@ public class QueriesProcessor {
         return itemInfo;
     }
 
+    public boolean itemExit(SQLiteDatabase database,String id)
+    {
+        String queryString = "SELECT * FROM " + DBHelper.TABLE_WAREHOUSE + " WHERE " + DBHelper.KEY_ID + "=" + id;
+
+        Cursor cursor = database.rawQuery(queryString, null);
+        if (cursor.getCount()>0)
+        {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     /**
      * Получение истории импорта и экспорта товаров
      * @param database база данных

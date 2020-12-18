@@ -38,6 +38,7 @@ import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.QRHelper;
 import com.example.warehouseproject.R;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -229,6 +230,7 @@ public class NewItemFragment extends Fragment {
                     }
                 }
                 else{
+
                     Toast toast = Toast.makeText(getContext(),"Заполните все необходимые поля",Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER,0,0);
                     toast.show();
