@@ -5,15 +5,16 @@ package com.example.warehouseproject.Code;
  *
  * Данный класс описывает структуру записи в истории импорта и экспорта товаров
  */
-public class historyitem {
+public class Historyitem {
 
 
-    public historyitem(String _operation,String _vendor, String _type, String _name,String _count) {
+    public Historyitem(String _operation, String _vendor, String _type, String _name, String _count,String _date) {
         operation = _operation;
         vendor = _vendor;
         type = _type;
         name = _name;
         count = _count;
+        date = _date;
     }
 
     public String getOperation() {
@@ -61,4 +62,13 @@ public class historyitem {
     public String type;
     public String name;
     public String count;
+    public String date;
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

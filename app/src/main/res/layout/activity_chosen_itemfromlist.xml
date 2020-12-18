@@ -13,7 +13,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/chosenitemLabel"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:background="#777070"

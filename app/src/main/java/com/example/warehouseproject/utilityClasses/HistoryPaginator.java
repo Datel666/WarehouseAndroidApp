@@ -1,5 +1,5 @@
 package com.example.warehouseproject.utilityClasses;
-import com.example.warehouseproject.Code.historyitem;
+import com.example.warehouseproject.Code.Historyitem;
 import java.util.ArrayList;
 
 /**
@@ -11,12 +11,12 @@ public class HistoryPaginator {
 
     //region variables
     public int TOTAL_NUM_ITEMS;
-    public int ITEMS_PER_PAGE = 3;
-    ArrayList<historyitem> list;
+    public int ITEMS_PER_PAGE = 2;
+    ArrayList<Historyitem> list;
     //endregion
 
     // Конструктор класса
-    public HistoryPaginator(ArrayList<historyitem> _list)
+    public HistoryPaginator(ArrayList<Historyitem> _list)
     {
         list = _list;
         TOTAL_NUM_ITEMS = list.size();
@@ -41,15 +41,15 @@ public class HistoryPaginator {
      * @param currentPage текущая страница
      * @return коллекция предметов для текущей страницы ListView
      */
-    public ArrayList<historyitem> getCurrentGalaxys(int currentPage) {
+    public ArrayList<Historyitem> getCurrentGalaxys(int currentPage) {
         int startItem = currentPage * ITEMS_PER_PAGE;
         int lastItem = startItem + ITEMS_PER_PAGE;
 
-        ArrayList<historyitem> pagelist = new ArrayList<>();
+        ArrayList<Historyitem> pagelist = new ArrayList<>();
 
         try {
             for (int i = 0; i < list.size(); i++) {
-                if (i >= startItem && i < lastItem) {
+                if (i >= startItem && i <= lastItem) {
                     pagelist.add(list.get(i));
                 }
             }

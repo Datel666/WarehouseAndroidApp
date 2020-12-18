@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -18,6 +21,8 @@ import com.example.warehouseproject.R;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.QRHelper;
 import com.example.warehouseproject.utilityClasses.QueriesProcessor;
+
+import java.util.logging.Logger;
 
 /**
  * chosenItemfromlist class
@@ -43,6 +48,7 @@ public class chosenItemfromlist extends AppCompatActivity {
     private EditText itemtype;
     private EditText itemvendor;
 
+
     private Button changeinformation;
     private Button decline;
     private Button apply;
@@ -64,7 +70,28 @@ public class chosenItemfromlist extends AppCompatActivity {
         initialiseViews();
         initializeValues();
         fillforms(Item);
+        operationtype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
+                String size = operationtype.getSelectedItem().toString();
+                switch (size) {
+                    case "Импорт товара":
+                        itemvendor.setEnabled(true);
+                        break;
+                    case "Экспорт товара":
+                        itemvendor.setEnabled(false);
+                        itemvendor.setText("");
+                        break;
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     //region utility
@@ -93,6 +120,7 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemtype = (EditText) findViewById(R.id.itemtypeEdit);
         itemvendor = (EditText) findViewById(R.id.vendorEdit);
 
+
         changeinformation = (Button) findViewById(R.id.changeinformationBtn);
         decline = (Button) findViewById(R.id.declineBtn);
         apply = (Button) findViewById(R.id.applyBtn);
@@ -110,7 +138,7 @@ public class chosenItemfromlist extends AppCompatActivity {
         itemdescription.setText(info.description);
         itemcount.setText(info.count);
         itemtype.setText(info.type);
-        itemImage.setImageBitmap(qhelper.bytetoimage(info.photo));
+        itemImage.setImageBitmap(bytetoimage(info.photo));
     }
 
     /**
@@ -141,12 +169,36 @@ public class chosenItemfromlist extends AppCompatActivity {
      *  Логика запроса по обновлению значения количества товара в базе данных товаров
      * @param itemid идентификатор товара
      */
-    private void updateitemCount(int itemid) {
-        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
-                + String.valueOf(Integer.parseInt(itemcount.getText().toString())
-                + Integer.parseInt(operationcount.getText().toString())) +
-                " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
-        database.rawQuery(queryString, null);
+    private void updateitemCount(int itemid,String operation) {
+
+        if(operation.equals("+")) {
+            if (itemvendor.getText().toString().length() != 0 && operationcount.getText().toString().length() != 0) {
+                String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
+                        + String.valueOf(Integer.parseInt(itemcount.getText().toString())
+                        + Integer.parseInt(operationcount.getText().toString())) +
+                        " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
+                database.rawQuery(queryString, null);
+            }
+            else{
+                Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+            }
+        }
+        else if (operation.equals("-")){
+            if (operationcount.getText().toString().length() != 0) {
+                String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
+                        + String.valueOf(Integer.parseInt(itemcount.getText().toString())
+                        + Integer.parseInt(operationcount.getText().toString())) +
+                        " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
+                database.rawQuery(queryString, null);
+            }
+            else{
+                Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+            }
+        }
     }
 
     /**
@@ -154,38 +206,59 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param itemid
      */
     private void updateitemInfo(int itemid) {
-        String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET "
-                + DBHelper.KEY_ITEMNAME + "=" + itemname.getText().toString()
-                + "," + DBHelper.KEY_DESCRIPTION + "="
-                + itemdescription.getText().toString() +
-                " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
-        database.rawQuery(queryString, null);
+        if(itemname.getText().toString().length()>4) {
+            String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET "
+                    + DBHelper.KEY_ITEMNAME + "=" + itemname.getText().toString()
+                    + "," + DBHelper.KEY_DESCRIPTION + "="
+                    + itemdescription.getText().toString() +
+                    " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
+            database.rawQuery(queryString, null);
+        }
+        else{
+            Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля",Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
+        }
     }
 
     /**
      * Логика создания новой записи импорта или экспорта товара в базе данных поставок
      * @param itemid идентификатор товара
      */
-    private void updateSupplyTable(int itemid) {
-        String operation = "";
-        String size = operationtype.getSelectedItem().toString();
-        switch (size) {
-            case "Импорт товара":
-                operation = "+";
-                break;
-            case "Экспорт товара":
-                operation = "-";
-                break;
-            default:
-                operation = "";
+    private void updateSupplyTable(int itemid,String operation) {
+
+        if(operation.equals("+")) {
+            if (itemvendor.getText().toString().length() != 0 && operationcount.getText().toString().length() != 0) {
+                ContentValues supplyvalues = new ContentValues();
+                supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, operation);
+                supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
+                supplyvalues.put(DBHelper.KEY_COUNT2, operationcount.getText().toString());
+                supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
+                supplyvalues.put("itemid", itemid);
+                database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+            }
+            else{
+                Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
+                toast.setGravity(Gravity.CENTER,0,0);
+                toast.show();
+            }
         }
-        ContentValues supplyvalues = new ContentValues();
-        supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, operation);
-        supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
-        supplyvalues.put(DBHelper.KEY_COUNT2, operationcount.getText().toString());
-        supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
-        supplyvalues.put("itemid", itemid);
-        database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+        else if (operation.equals("-")){
+            if (operationcount.getText().toString().length() != 0) {
+                ContentValues supplyvalues = new ContentValues();
+                supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, operation);
+                supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
+                supplyvalues.put(DBHelper.KEY_COUNT2, operationcount.getText().toString());
+                supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
+                supplyvalues.put("itemid", itemid);
+                database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+            }
+            }
+            else{
+            Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
+        }
     }
 
     /**
@@ -209,11 +282,24 @@ public class chosenItemfromlist extends AppCompatActivity {
         if (!database.isOpen()) {
             database = helper.getReadableDatabase();
         }
-        if (itemvendor.getText().toString().length() != 0 && operationcount.getText().toString().length() != 0) {
+
+        String operation = "";
+        String size = operationtype.getSelectedItem().toString();
+        switch (size) {
+            case "Импорт товара":
+                operation = "+";
+                break;
+            case "Экспорт товара":
+                operation = "-";
+                break;
+            default:
+                operation = "";
+        }
+
             try {
                 database.beginTransaction();
-                updateitemCount(Item.id);
-                updateSupplyTable(Item.id);
+                updateitemCount(Item.id,operation);
+                updateSupplyTable(Item.id,operation);
                 database.setTransactionSuccessful();
             } catch (Exception ex) {
                 Toast toast = Toast.makeText(getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
@@ -222,11 +308,9 @@ public class chosenItemfromlist extends AppCompatActivity {
             } finally {
                 database.endTransaction();
             }
-        } else {
-            Toast toast = Toast.makeText(getApplicationContext(), "Данные не указаны или указаны не верно", Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-        }
+
+
+
         Item = qprocessor.getitemInformation(Item.id, database);
         updateforms(Item);
     }
@@ -300,5 +384,10 @@ public class chosenItemfromlist extends AppCompatActivity {
         }
     }
     //endregion
+
+    public Bitmap bytetoimage(byte[] bytearr){
+        Bitmap bmp = BitmapFactory.decodeByteArray(bytearr, 0, bytearr.length);
+        return bmp;
+    }
 
 }

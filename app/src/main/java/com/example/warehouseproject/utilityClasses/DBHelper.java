@@ -11,11 +11,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     //region variables
-    public static final int DATABASE_VERSION = 15;
+    public static final int DATABASE_VERSION = 19;
     public static final String DATABASE_NAME = "warehouse";
     public static final String TABLE_WAREHOUSE = "itemtable";
+    public static final String KEY_QR = "qrcode";
     public static final String KEY_ID = "itemid";
-    public static final String KEY_QR = "itemqr";
     public static final String KEY_ITEMTYPE = "itemtype";
     public static final String KEY_ITEMNAME = "itemname";
     public static final String KEY_ITEMPHOTO = "itemphoto";
@@ -46,7 +46,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table "
                 + TABLE_WAREHOUSE + "("
                 + KEY_ID + " integer primary key autoincrement, "
-                + KEY_QR + " text,"
+                + KEY_QR + " blob,"
                 + KEY_ITEMTYPE + " text,"
                 + KEY_ITEMNAME + " text,"
                 + KEY_COUNT + " text,"

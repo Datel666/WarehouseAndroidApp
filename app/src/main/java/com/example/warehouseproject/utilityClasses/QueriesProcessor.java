@@ -3,7 +3,7 @@ package com.example.warehouseproject.utilityClasses;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.warehouseproject.Code.Item;
-import com.example.warehouseproject.Code.historyitem;
+import com.example.warehouseproject.Code.Historyitem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class QueriesProcessor {
      * @return лист товаров определённого типа в соответствии с фильтрами
      */
     public List<Item> filteredqueries(SQLiteDatabase db, String[] selection) {
-        Cursor cursor = db.query(DBHelper.TABLE_WAREHOUSE, null, selection[0] + selection[1], null, null, null, "itemname");
+        Cursor cursor = db.query(DBHelper.TABLE_WAREHOUSE, null, selection[0] + selection[1], null, null, null, null);
         List<Item> res = new ArrayList<>();
         if (cursor.moveToFirst()) {
             int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
@@ -101,10 +101,10 @@ public class QueriesProcessor {
      * @param database база данных
      * @return История импорта и экспорта товаров
      */
-    public List<historyitem> loadhistory(SQLiteDatabase database){
+    public List<Historyitem> loadhistory(SQLiteDatabase database){
         String operation = "";
 
-        List<historyitem> res = new ArrayList<>();
+        List<Historyitem> res = new ArrayList<>();
         Cursor cursor = database.rawQuery("SELECT * FROM " + DBHelper.TABLE_SUPPLY + " a JOIN ( SELECT itemid, "+ DBHelper.KEY_ITEMNAME + " as itemname ," + DBHelper.KEY_ITEMTYPE+ " " +
                 "as itemtype FROM " + DBHelper.TABLE_WAREHOUSE + ") b  on a.itemid = b.itemid",null);
 
@@ -114,6 +114,7 @@ public class QueriesProcessor {
             int typeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
             int nameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
             int countIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT2);
+            int dateIndex = cursor.getColumnIndex(DBHelper.KEY_DATE);
 
             do {
                 if(cursor.getString(operationIndex).equals("+")){
@@ -122,7 +123,7 @@ public class QueriesProcessor {
                 else{
                     operation = "Экспорт";
                 }
-                res.add(new historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex)));
+                res.add(new Historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex),cursor.getString(dateIndex)));
             }
             while (cursor.moveToNext());
         } else {
@@ -136,15 +137,15 @@ public class QueriesProcessor {
      * @param database база данных
      * @return История импорта и экспорта в соответствии с фильтрами
      */
-    public List<historyitem> loadhistoryfiltered(String search,SQLiteDatabase database){
+    public List<Historyitem> loadhistoryfiltered(String search, SQLiteDatabase database, String orderby){
         String operation = "";
         String operationsearch = "";
         operationsearch = search.contains("Импорт") ? "+" : "-";
 
-        List<historyitem> res = new ArrayList<>();
+        List<Historyitem> res = new ArrayList<>();
         Cursor cursor = database.rawQuery("SELECT * FROM " + DBHelper.TABLE_SUPPLY + " a JOIN ( SELECT itemid, "+ DBHelper.KEY_ITEMNAME + " as itemname ," + DBHelper.KEY_ITEMTYPE+ " " +
-                "as itemtype FROM " + DBHelper.TABLE_WAREHOUSE + ") b  on a.itemid = b.itemid WHERE instr(itemname," + "'" + search + "'" + ") > 0 " +
-                "OR instr(supplytype," + "'" + operationsearch + "'" + ") > 0" + " OR instr(itemvendor," + "'" + search + "'" + ") > 0",null);
+                "as itemtype FROM " + DBHelper.TABLE_WAREHOUSE + ") b  on a.itemid = b.itemid WHERE itemname LIKE" + " '%" + search + "%'" + " " +
+                " OR supplytype LIKE "+ "'%"+ search + "%'" + " OR itemvendor LIKE " + "'%" + search + "%'" + " ORDER BY " + orderby,null);
 
         if (cursor.moveToFirst()) {
             int operationIndex = cursor.getColumnIndex(DBHelper.KEY_SUPPLYTYPE);
@@ -152,6 +153,7 @@ public class QueriesProcessor {
             int typeIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMTYPE);
             int nameIndex = cursor.getColumnIndex(DBHelper.KEY_ITEMNAME);
             int countIndex = cursor.getColumnIndex(DBHelper.KEY_COUNT2);
+            int dateIndex = cursor.getColumnIndex(DBHelper.KEY_DATE);
 
             do {
                 if(cursor.getString(operationIndex).equals("+")){
@@ -160,7 +162,7 @@ public class QueriesProcessor {
                 else{
                     operation = "Экспорт";
                 }
-                res.add(new historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex)));
+                res.add(new Historyitem(operation,cursor.getString(vendorIndex),cursor.getString(typeIndex),cursor.getString(nameIndex),cursor.getString(countIndex),cursor.getString(dateIndex)));
             }
             while (cursor.moveToNext());
         } else {

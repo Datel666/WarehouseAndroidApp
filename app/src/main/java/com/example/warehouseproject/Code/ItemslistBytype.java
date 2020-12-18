@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class ItemslistBytype extends AppCompatActivity {
     private Button showfiltersBtn;
     private EditText searchF;
     private TextView itemtypetextview;
+    private Spinner sortBySpinner;
 
     // Переменные
     private int totalpages;
@@ -143,6 +145,21 @@ public class ItemslistBytype extends AppCompatActivity {
             });
         }
 
+        sortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!database.isOpen()) {
+                    database = helper.getWritableDatabase();
+                }
+                updateformsAccordingfilters();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         searchF.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -190,6 +207,7 @@ public class ItemslistBytype extends AppCompatActivity {
         ehgrid = (ExpandableHeightGridView) findViewById(R.id.ehgridview);
         searchF = (EditText) findViewById(R.id.searchField);
         itemtypetextview = (TextView) findViewById(R.id.itemstypeTextView);
+        sortBySpinner = (Spinner) findViewById(R.id.SortType);
     }
 
     /**
@@ -313,7 +331,8 @@ public class ItemslistBytype extends AppCompatActivity {
      * @param listchild коллекция членов групп фильтров поиска
      * @return массив с телом запросов
      */
-    public String[] preparefilters(String itemtype,EditText searcher,List<String> listheader,HashMap<String,List<CheckBox>> listchild) {
+    public String[] preparefilters(String itemtype,EditText searcher,List<String> listheader,
+                                   HashMap<String,List<CheckBox>> listchild) {
         String[] selection = new String[2];
         selection[0] = DBHelper.KEY_ITEMTYPE + " =" + "'" + itemtype + "'";
         String filterBuilder = " AND instr(itemname," + "'" + searcher.getText().toString() + "'" + ") > 0";
@@ -327,6 +346,19 @@ public class ItemslistBytype extends AppCompatActivity {
                 }
             }
         }
+
+        String orderFilter= "";
+
+        if (sortBySpinner.getSelectedItem().toString().equals("Сортировать по: Наименованию")){
+            orderFilter = "itemname";
+        }
+        if(sortBySpinner.getSelectedItem().toString().equals("Сортировать по: Количеству")){
+            orderFilter ="count";
+        }
+
+
+
+        filterBuilder += " ORDER BY " + orderFilter + " DESC";
         selection[1] = filterBuilder;
 
         return selection;

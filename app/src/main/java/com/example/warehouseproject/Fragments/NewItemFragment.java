@@ -42,6 +42,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 
@@ -73,6 +75,7 @@ public class NewItemFragment extends Fragment {
 
     ImageView itemphoto;
     Bitmap itemphotobytes;
+    ByteArrayOutputStream baos;
     //endregion
 
     @Nullable
@@ -191,40 +194,45 @@ public class NewItemFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
-                try {
-                    database.beginTransaction();
+                if(itemname.getText().toString().length()>4 && !itemcount.getText().toString().equals("") && itemvendor.getText().toString().length()>4) {
+                    try {
+                        database.beginTransaction();
 
-                    contentValues.put(DBHelper.KEY_QR, printQR(Long.toString(getProfilesCount())));
-                    contentValues.put(DBHelper.KEY_ITEMTYPE, currentItemtype);
-                    contentValues.put(DBHelper.KEY_ITEMNAME, itemname.getText().toString());
-                    contentValues.put(DBHelper.KEY_COUNT, itemcount.getText().toString());
-                    contentValues.put(DBHelper.KEY_DESCRIPTION, itemdescription.getText().toString());
-                    contentValues.put(DBHelper.KEY_ITEMPHOTO, qrhelper.imagetobyte(itemphotobytes));
-                    database.insert(DBHelper.TABLE_WAREHOUSE, null, contentValues);
+                        contentValues.put(DBHelper.KEY_ITEMTYPE, currentItemtype);
+                        contentValues.put(DBHelper.KEY_QR, printQR(Long.toString(getProfilesCount())));
+                        contentValues.put(DBHelper.KEY_ITEMNAME, itemname.getText().toString());
+                        contentValues.put(DBHelper.KEY_COUNT, itemcount.getText().toString());
+                        contentValues.put(DBHelper.KEY_DESCRIPTION, itemdescription.getText().toString());
+                        contentValues.put(DBHelper.KEY_ITEMPHOTO, imagetobyte(itemphotobytes));
+                        database.insert(DBHelper.TABLE_WAREHOUSE, null, contentValues);
 
-                    ContentValues supplyvalues = new ContentValues();
-                    supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, "+");
-                    supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
-                    supplyvalues.put(DBHelper.KEY_COUNT2, itemcount.getText().toString());
-                    supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
-                    supplyvalues.put("itemid", getProfilesCount());
-                    database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+                        ContentValues supplyvalues = new ContentValues();
+                        supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, "+");
+                        supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
+                        supplyvalues.put(DBHelper.KEY_COUNT2, itemcount.getText().toString());
+                        supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
+                        supplyvalues.put("itemid", getProfilesCount());
+                        database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
 
-                    database.setTransactionSuccessful();
-                } catch (Exception ex) {
-                    Toast toast = Toast.makeText(act.getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                } finally {
-                    database.endTransaction();
+                        database.setTransactionSuccessful();
+                    } catch (Exception ex) {
+                        Toast toast = Toast.makeText(act.getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+                    } finally {
+                        database.endTransaction();
+                        Toast toast = Toast.makeText(act, "Товар успешно добавлен", Toast.LENGTH_SHORT);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+
+                        clearforms();
+                    }
                 }
-
-                Toast toast = Toast.makeText(act, "Товар успешно добавлен", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-
-                clearforms();
-
+                else{
+                    Toast toast = Toast.makeText(getContext(),"Заполните все необходимые поля",Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+                }
             }
         });
 
@@ -262,6 +270,7 @@ public class NewItemFragment extends Fragment {
     private void initializeValues() {
         helper = new DBHelper(act);
         database = helper.getWritableDatabase();
+        baos = new ByteArrayOutputStream();
 
         itemphotobytes = BitmapFactory.decodeResource(getResources(), R.drawable.processors);
         filters = getResources().getStringArray(R.array.processorfilters);
@@ -288,8 +297,8 @@ public class NewItemFragment extends Fragment {
      */
     public long getProfilesCount() {
         long count;
-        c = database.rawQuery("SELECT COALESCE(MAX(itemid), 1) AS pls FROM itemtable", null);
-
+        //c = database.rawQuery("SELECT COALESCE(MAX(itemid), 1) AS pls FROM itemtable", null);
+        c = database.rawQuery("SELECT last_insert_rowid() AS pls",null);
         c.moveToFirst();
         count = c.getInt(c.getColumnIndex("pls"));
         return count;
@@ -301,10 +310,10 @@ public class NewItemFragment extends Fragment {
      * @param id идентификатор товара
      * @return QR-код представленный в виде строки base64
      */
-    public String printQR(String id) {
+    public byte[] printQR(String id) {
         QRCodeWriter writer = new QRCodeWriter();
         try {
-            BitMatrix bitMatrix = writer.encode(id, BarcodeFormat.QR_CODE, 200, 200);
+            BitMatrix bitMatrix = writer.encode(id, BarcodeFormat.QR_CODE, 256, 256);
             int width = bitMatrix.getWidth();
             int height = bitMatrix.getHeight();
             Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
@@ -313,7 +322,7 @@ public class NewItemFragment extends Fragment {
                     bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
                 }
             }
-            return qrhelper.encodeTobase64(bmp);
+            return imagetobyte(bmp);
 
         } catch (WriterException e) {
             e.printStackTrace();
@@ -363,6 +372,13 @@ public class NewItemFragment extends Fragment {
                     }
                     break;
             }
+    }
+
+    public byte[] imagetobyte (Bitmap bmp) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        return imageBytes;
     }
 }
 

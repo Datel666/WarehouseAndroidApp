@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,13 +38,14 @@ import java.util.List;
 
 public class SearchFragment extends Fragment {
 
-    Context con;
-    View view;
-    ImageButton qrscanBtn;
-    Button nextBtn;
-    Button prevBtn;
-    EditText searchF;
-    ExpandableHeightGridView ehgrid;
+    private Context con;
+    private View view;
+    private ImageButton qrscanBtn;
+    private Button nextBtn;
+    private Button prevBtn;
+    private EditText searchF;
+    private ExpandableHeightGridView ehgrid;
+    private Spinner searchSortBySpinner;
 
     private Paginator paginator;
     private SQLiteDatabase database;
@@ -119,6 +121,17 @@ public class SearchFragment extends Fragment {
                 searchF.addTextChangedListener(this);
             }
         });
+        searchSortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateformsAccordingfilters();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -133,6 +146,7 @@ public class SearchFragment extends Fragment {
         prevBtn = (Button) view.findViewById(R.id.searchprevBtn);
         searchF = (EditText) view.findViewById(R.id.searchsearchEdit);
         ehgrid = (ExpandableHeightGridView) view.findViewById(R.id.searchehGrid);
+        searchSortBySpinner = (Spinner) view.findViewById(R.id.searchsortSpinner);
     }
 
     private void initializeValues() {
@@ -167,8 +181,18 @@ public class SearchFragment extends Fragment {
 
     public List<Item> filteredqueries(SQLiteDatabase db) {
 
+        String orderby = "";
+        if(searchSortBySpinner.getSelectedItem().toString().equals("Сортировать по: Наименованию"))
+        {
+            orderby = " itemname";
+        }
+        else if (searchSortBySpinner.getSelectedItem().toString().equals("Сортировать по: Количеству"))
+        {
+            orderby = " count";
+        }
+
         Cursor cursor = db.rawQuery("Select * from itemtable WHERE instr(count," + "'" + searchF.getText().toString() + "'" + ") > 0 OR  instr(itemname," + "'" + searchF.getText().toString() + "'" + ") > 0 OR " +
-                "instr(description," + "'" + searchF.getText().toString() + "'" + ") > 0 OR instr(itemtype," + "'" + searchF.getText().toString() + "'" + ") > 0  order by itemname", new String[]{});
+                "instr(description," + "'" + searchF.getText().toString() + "'" + ") > 0 OR instr(itemtype," + "'" + searchF.getText().toString() + "'" + ") > 0  order by " + orderby, new String[]{});
         List<Item> res = new ArrayList<>();
         if (cursor.moveToFirst()) {
             int itemidIndex = cursor.getColumnIndex(DBHelper.KEY_ID);

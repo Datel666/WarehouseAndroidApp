@@ -10,8 +10,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,7 +25,7 @@ import com.example.warehouseproject.R;
 import com.example.warehouseproject.customForms.ExpandableHeightGridView;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.HistoryPaginator;
-import com.example.warehouseproject.Code.historyitem;
+import com.example.warehouseproject.Code.Historyitem;
 import com.example.warehouseproject.utilityClasses.QueriesProcessor;
 
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class HistoryFragment extends Fragment {
     private Button prevBtn;
     private ExpandableHeightGridView ehgrid;
     private EditText searchF;
+    private Spinner historySortBySpinner;
 
     // Переменные
     private int totalpages;
@@ -56,7 +59,7 @@ public class HistoryFragment extends Fragment {
     private QueriesProcessor qprocessor;
 
     // Структуры
-    private List<historyitem> queryResults;
+    private List<Historyitem> queryResults;
 
     //endregion
 
@@ -107,21 +110,56 @@ public class HistoryFragment extends Fragment {
                 if (!database.isOpen()) {
                     database = helper.getWritableDatabase();
                 }
-                queryResults = qprocessor.loadhistoryfiltered(searchF.getText().toString(),database);
-                paginator = new HistoryPaginator((ArrayList<historyitem>) queryResults);
-                totalpages = paginator.getTotalPages();
-                currentpage = 0;
-                toggleButtons();
-                bindData(currentpage);
-                ehgrid.setExpanded(true);
-                if (ehgrid.getCount() == 0) {
-                    Toast toast = Toast.makeText(getContext(), "Предметов по заданному запросу не найдено", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
+                filteredQuery();
                 searchF.addTextChangedListener(this);
             }
         });
+
+        historySortBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!database.isOpen()) {
+                    database = helper.getWritableDatabase();
+                }
+                filteredQuery();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    /**
+     * Запрос к базе данных на получение записей таблицы истории операций с использованием фильтров
+     */
+    public void filteredQuery()
+    {
+        String orderby = "";
+        if(historySortBySpinner.getSelectedItem().toString().equals("Сортировать по: Дате"))
+        {
+            orderby  = "date DESC";
+        }
+        if(historySortBySpinner.getSelectedItem().toString().equals("Сортировать по: Наименованию"))
+        {
+            orderby  = "itemname";
+        }
+        if(!database.isOpen()){
+            database = helper.getWritableDatabase();
+        }
+        queryResults = qprocessor.loadhistoryfiltered(searchF.getText().toString(),database,orderby);
+        paginator = new HistoryPaginator((ArrayList<Historyitem>) queryResults);
+        totalpages = paginator.getTotalPages();
+        currentpage = 0;
+        toggleButtons();
+        bindData(currentpage);
+        ehgrid.setExpanded(true);
+        if (ehgrid.getCount() == 0) {
+            Toast toast = Toast.makeText(getContext(), "Предметов по заданному запросу не найдено", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
     }
 
     @Override
@@ -139,6 +177,7 @@ public class HistoryFragment extends Fragment {
         prevBtn = (Button) view.findViewById(R.id.prevhistoryBtn);
         ehgrid = (ExpandableHeightGridView) view.findViewById(R.id.historyGridView);
         searchF = (EditText) view.findViewById(R.id.historySeachField);
+        historySortBySpinner = (Spinner) view.findViewById(R.id.historySortSpinner);
     }
 
     /**
@@ -153,12 +192,13 @@ public class HistoryFragment extends Fragment {
             database = helper.getWritableDatabase();
         }
         queryResults = qprocessor.loadhistory(database);
-        paginator = new HistoryPaginator((ArrayList<historyitem>) queryResults);
+        paginator = new HistoryPaginator((ArrayList<Historyitem>) queryResults);
         totalpages = paginator.getTotalPages();
         currentpage = 0;
         toggleButtons();
         bindData(currentpage);
         ehgrid.setExpanded(true);
+
     }
 
     /**
@@ -167,7 +207,9 @@ public class HistoryFragment extends Fragment {
      */
     private void bindData(int page) {
         HistoryItemAdapter adapter = new HistoryItemAdapter(view.getContext(), paginator.getCurrentGalaxys(page));
+
         ehgrid.setAdapter(adapter);
+
     }
 
     /**
