@@ -335,16 +335,29 @@ public class ItemslistBytype extends AppCompatActivity {
      */
     public String[] preparefilters(String itemtype,EditText searcher,List<String> listheader,
                                    HashMap<String,List<CheckBox>> listchild) {
+        int counter = 0;
+        String filterBuilder = "";
         String[] selection = new String[2];
         selection[0] = DBHelper.KEY_ITEMTYPE + " =" + "'" + itemtype + "'";
-        String filterBuilder = " AND instr(itemname," + "'" + searcher.getText().toString() + "'" + ") > 0";
+        if( searcher.getText().toString().length() >0) {
+            filterBuilder = " AND instr(itemname," + "'" + searcher.getText().toString() + "'" + ") > 0";
+        }
         String tempstr = "";
         for (int i = 0; i < listheader.size(); i++) {
 
             for (int j = 0; j < listchild.get(listheader.get(i)).size(); j++) {
                 if (listchild.get(listheader.get(i)).get(j).isChecked()) {
-                    tempstr = listchild.get(listheader.get(i)).get(j).getText().toString();
-                    filterBuilder += " AND instr(description," + "'" + tempstr + "'" + ") > 0";
+                    tempstr = listheader.get(i).toString();
+                    tempstr += listchild.get(listheader.get(i)).get(j).getText().toString();
+                    //filterBuilder += " OR instr(description," + "'" + tempstr + "'" + ") > 0";
+                    if(counter ==0)
+                    {
+                        filterBuilder += " AND description LIKE "+ "'%" + tempstr + "%'";
+                        counter++;
+                    }
+                    else {
+                        filterBuilder += " OR description LIKE " + "'%" + tempstr + "%'";
+                    }
                 }
             }
         }

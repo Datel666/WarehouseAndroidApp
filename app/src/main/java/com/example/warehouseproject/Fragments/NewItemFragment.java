@@ -303,7 +303,7 @@ public class NewItemFragment extends Fragment {
         itemname.setText("");
         itemvendor.setText("");
         itemcount.setText("");
-        itemdescription.setText("");
+        itemdescription.setText("Производитель:");
     }
 
     /**
