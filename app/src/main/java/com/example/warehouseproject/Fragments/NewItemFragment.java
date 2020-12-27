@@ -313,8 +313,8 @@ public class NewItemFragment extends Fragment {
      */
     public long getProfilesCount() {
         long count;
-        //c = database.rawQuery("SELECT COALESCE(MAX(itemid), 1) AS pls FROM itemtable", null);
-        c = database.rawQuery("SELECT last_insert_rowid() AS pls",null);
+        c = database.rawQuery("SELECT COALESCE(MAX(itemid), 1) AS pls FROM itemtable", null);
+        //c = database.rawQuery("SELECT last_insert_rowid() AS pls",null);
         c.moveToFirst();
         count = c.getInt(c.getColumnIndex("pls"));
         return count;

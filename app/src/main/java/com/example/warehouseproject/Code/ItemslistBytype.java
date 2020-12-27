@@ -212,6 +212,10 @@ public class ItemslistBytype extends AppCompatActivity {
         sortBySpinner = (Spinner) findViewById(R.id.SortType);
     }
 
+
+
+
+
     /**
      * Инициализация значений
      */
@@ -350,16 +354,11 @@ public class ItemslistBytype extends AppCompatActivity {
                     tempstr = listheader.get(i).toString();
                     tempstr += listchild.get(listheader.get(i)).get(j).getText().toString();
                     //filterBuilder += " OR instr(description," + "'" + tempstr + "'" + ") > 0";
-                    if(counter ==0)
-                    {
                         filterBuilder += " AND description LIKE "+ "'%" + tempstr + "%'";
-                        counter++;
-                    }
-                    else {
-                        filterBuilder += " OR description LIKE " + "'%" + tempstr + "%'";
-                    }
+
                 }
             }
+
         }
 
         String orderFilter= "";
@@ -373,7 +372,9 @@ public class ItemslistBytype extends AppCompatActivity {
 
 
 
-        filterBuilder += " ORDER BY " + orderFilter + " DESC";
+        filterBuilder += " ORDER BY " + orderFilter + "";
+
+
         selection[1] = filterBuilder;
 
         return selection;

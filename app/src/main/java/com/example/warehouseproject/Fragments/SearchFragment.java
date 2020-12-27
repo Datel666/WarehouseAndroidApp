@@ -84,8 +84,6 @@ public class SearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-
-
         updateformsDefault();
 
         qrscanBtn.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +138,23 @@ public class SearchFragment extends Fragment {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
+
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentpage++;
+                toggleButtons();
+                bindData(currentpage);
+            }
+        });
+        prevBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentpage--;
+                toggleButtons();
+                bindData(currentpage);
             }
         });
     }
