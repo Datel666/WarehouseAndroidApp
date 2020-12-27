@@ -1,6 +1,7 @@
 package com.example.warehouseproject.Code;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.warehouseproject.Fragments.SearchFragment;
 import com.example.warehouseproject.R;
 import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.QRHelper;
@@ -63,7 +65,10 @@ public class chosenItemfromlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_chosen_itemfromlist);
+        helper = new DBHelper(this);
+        database = helper.getWritableDatabase();
     }
+
 
     @Override
     protected void onResume() {
@@ -96,19 +101,25 @@ public class chosenItemfromlist extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
+    }
+
     //region utility
 
     /**
      * Инициализация значений переменных
      */
     private void initializeValues() {
-        helper = new DBHelper(this);
+
         qprocessor = new QueriesProcessor();
-        database = helper.getWritableDatabase();
         itemtypes = getResources().getStringArray(R.array.itemTypes);
         intent = getIntent();
         action = intent.getAction();
         Item = qprocessor.getitemInformation(Integer.parseInt(intent.getStringExtra("itemid")), database);
+
     }
 
     /**
@@ -172,14 +183,15 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param itemid идентификатор товара
      */
     private void updateitemCount(int itemid,String operation) {
-
+        ContentValues updateitemcountvalues = new ContentValues();
         if(operation.equals("+")) {
             if (itemvendor.getText().toString().length() != 0 && operationcount.getText().toString().length() != 0) {
-                String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
-                        + String.valueOf(Integer.parseInt(itemcount.getText().toString())
-                        + Integer.parseInt(operationcount.getText().toString())) +
-                        " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
-                database.rawQuery(queryString, null);
+
+                updateitemcountvalues.put(DBHelper.KEY_COUNT,String.valueOf(Long.parseLong(itemcount.getText().toString())
+                        + Long.parseLong(operationcount.getText().toString())) );
+
+
+                database.update(DBHelper.TABLE_WAREHOUSE,updateitemcountvalues,DBHelper.KEY_ID + "=?",new String[]{String.valueOf(itemid)});
             }
             else{
                 Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
@@ -189,11 +201,17 @@ public class chosenItemfromlist extends AppCompatActivity {
         }
         else if (operation.equals("-")){
             if (operationcount.getText().toString().length() != 0) {
-                String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET " + DBHelper.KEY_COUNT + "="
-                        + String.valueOf(Integer.parseInt(itemcount.getText().toString())
-                        + Integer.parseInt(operationcount.getText().toString())) +
-                        " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
-                database.rawQuery(queryString, null);
+                if(Long.parseLong(itemcount.getText().toString())- Long.parseLong(operationcount.getText().toString()) >= 0) {
+
+                    updateitemcountvalues.put(DBHelper.KEY_COUNT,String.valueOf(Long.parseLong(itemcount.getText().toString())
+                            - Long.parseLong(operationcount.getText().toString())) );
+                    database.update(DBHelper.TABLE_WAREHOUSE,updateitemcountvalues,DBHelper.KEY_ID + "=?",new String[]{String.valueOf(itemid)});
+                }
+                else{
+                    Toast toast = Toast.makeText(getApplicationContext(),"Экспорт данного количество товара не возможен", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+                }
             }
             else{
                 Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля", Toast.LENGTH_LONG);
@@ -201,6 +219,7 @@ public class chosenItemfromlist extends AppCompatActivity {
                 toast.show();
             }
         }
+
     }
 
     /**
@@ -208,19 +227,20 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param itemid
      */
     private void updateitemInfo(int itemid) {
+
         if(itemname.getText().toString().length()>4) {
-            String queryString = "UPDATE " + DBHelper.TABLE_WAREHOUSE + " SET "
-                    + DBHelper.KEY_ITEMNAME + "=" + itemname.getText().toString()
-                    + "," + DBHelper.KEY_DESCRIPTION + "="
-                    + itemdescription.getText().toString() +
-                    " WHERE " + DBHelper.KEY_ID + " = " + String.valueOf(itemid);
-            database.rawQuery(queryString, null);
+            ContentValues updateitemvalues = new ContentValues();
+            updateitemvalues.put(DBHelper.KEY_ITEMNAME,itemname.getText().toString());
+            updateitemvalues.put(DBHelper.KEY_DESCRIPTION,itemdescription.getText().toString());
+
+            database.update(DBHelper.TABLE_WAREHOUSE,updateitemvalues,DBHelper.KEY_ID + "=?",new String[]{String.valueOf(itemid)});
         }
         else{
             Toast toast = Toast.makeText(getApplicationContext(),"Заполните все необходимые поля",Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
         }
+
     }
 
     /**
@@ -261,6 +281,7 @@ public class chosenItemfromlist extends AppCompatActivity {
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
         }
+
     }
 
     /**
@@ -268,7 +289,9 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param itemid идентификатор товара
      */
     private void deleteItem(int itemid) {
+
         database.delete(DBHelper.TABLE_WAREHOUSE, DBHelper.KEY_ID + "=?", new String[]{String.valueOf(itemid)});
+
     }
 
     //endregion
@@ -280,10 +303,6 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param view ссылка на кнопку
      */
     public void performOperationClick(View view) {
-
-        if (!database.isOpen()) {
-            database = helper.getReadableDatabase();
-        }
 
         String operation = "";
         String size = operationtype.getSelectedItem().toString();
@@ -315,6 +334,9 @@ public class chosenItemfromlist extends AppCompatActivity {
 
         Item = qprocessor.getitemInformation(Item.id, database);
         updateforms(Item);
+        operationcount.setText("");
+        itemvendor.setText("");
+
     }
 
     /**
@@ -345,9 +367,7 @@ public class chosenItemfromlist extends AppCompatActivity {
     public void applyClick(View view) {
         setformsenabled(false);
 
-        if (!database.isOpen()) {
-            database = helper.getWritableDatabase();
-        }
+
         try {
             database.beginTransaction();
             updateitemInfo(Item.id);
@@ -362,6 +382,7 @@ public class chosenItemfromlist extends AppCompatActivity {
 
         Item = qprocessor.getitemInformation(Item.id, database);
         updateforms(Item);
+
     }
 
     /**
@@ -369,9 +390,7 @@ public class chosenItemfromlist extends AppCompatActivity {
      * @param view ссылка на кнопку
      */
     public void deleteClick(View view) {
-        if (!database.isOpen()) {
-            database = helper.getWritableDatabase();
-        }
+
         try {
             database.beginTransaction();
             deleteItem(Item.id);
@@ -384,6 +403,7 @@ public class chosenItemfromlist extends AppCompatActivity {
             database.endTransaction();
             this.finish();
         }
+
     }
     //endregion
 

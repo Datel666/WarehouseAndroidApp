@@ -104,6 +104,7 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:inputType="text"
+                    android:maxLength="30"
                     android:singleLine="true"
                     android:textSize="14sp" />
 
@@ -113,7 +114,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:paddingLeft="5dp"
-                    android:text="Количество товара на складе:" />
+                    android:text="Товара на складе:" />
 
                 <EditText
                     android:id="@+id/itemcountEdit"
@@ -142,10 +143,17 @@
 
             android:layout_height="wrap_content"
             android:enabled="false"
-            android:inputType="text"
-            android:singleLine="true"
+            android:gravity="top|left"
+            android:inputType="textMultiLine|text"
+            android:lines="3"
+            android:maxLength="120"
+            android:maxLines="3"
+            android:minLines="3"
+            android:scrollbars="vertical"
+            android:scrollHorizontally="false"
+            android:singleLine="false"
             android:textAlignment="viewStart"
-            android:textSize="14sp" />
+            android:textSize="18sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -187,6 +195,7 @@
                         android:layout_height="39dp"
                         android:hint="Введите количество"
                         android:inputType="number"
+                        android:maxLength="6"
                         android:textSize="14sp" />
 
                     <EditText
@@ -195,6 +204,7 @@
                         android:layout_height="39dp"
                         android:hint="Поставщик"
                         android:inputType="text"
+                        android:maxLength="20"
                         android:textSize="14sp" />
 
                     <Button

@@ -11,7 +11,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     //region variables
-    public static final int DATABASE_VERSION = 19;
+    public static final int DATABASE_VERSION = 20;
     public static final String DATABASE_NAME = "warehouse";
     public static final String TABLE_WAREHOUSE = "itemtable";
     public static final String KEY_QR = "qrcode";

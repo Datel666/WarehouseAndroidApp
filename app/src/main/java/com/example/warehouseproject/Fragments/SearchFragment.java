@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -69,17 +70,21 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_search, container, false);
+        initializeViews();
+        initializeValues();
 
 
         return view;
     }
 
+
+
+
     @Override
     public void onResume() {
         super.onResume();
 
-        initializeViews();
-        initializeValues();
+
 
         updateformsDefault();
 
@@ -115,9 +120,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 searchF.removeTextChangedListener(this);
-                if (!database.isOpen()) {
-                    database = helper.getWritableDatabase();
-                }
+
 
                 updateformsAccordingfilters();
                 if (ehgrid.getCount() == 0) {
@@ -157,9 +160,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void initializeValues() {
-
         helper = new DBHelper(con);
-        database = helper.getWritableDatabase();
         qprocessor = new QueriesProcessor();
         queryResults = new ArrayList<Item>();
         queryQRS = new ArrayList<Integer>();
@@ -223,6 +224,8 @@ public class SearchFragment extends Fragment {
      * Изменение форм используя значения "по умолчанию"
      */
     public void updateformsDefault() {
+
+        database = helper.getWritableDatabase();
         queryResults = rawquery(database);
         paginator = new Paginator((ArrayList) queryResults);
         totalpages = paginator.getTotalPages();
@@ -230,6 +233,8 @@ public class SearchFragment extends Fragment {
         toggleButtons();
         bindData(currentpage);
         ehgrid.setExpanded(true);
+        database.close();
+
     }
 
     /**
@@ -237,6 +242,7 @@ public class SearchFragment extends Fragment {
      */
     public void updateformsAccordingfilters() {
 
+        database = helper.getWritableDatabase();
         queryResults = filteredqueries(database);
         paginator = new Paginator((ArrayList) queryResults);
         totalpages = paginator.getTotalPages();
@@ -244,6 +250,7 @@ public class SearchFragment extends Fragment {
         toggleButtons();
         bindData(currentpage);
         ehgrid.setExpanded(true);
+        database.close();
     }
 
     /**
@@ -285,43 +292,50 @@ public class SearchFragment extends Fragment {
     public void scanClick() {
         Intent intent = new IntentIntegrator(SearchFragment.this.getActivity()).createScanIntent();
         intent.setAction(Intents.Scan.ACTION);
+
         intent.putExtra("SCAN_MODE","QR_CODE_MODE");
         intent.putExtra("RESULT_DISPLAY_DURATION_MS",0L);
         startActivityForResult(intent,0);
     }
 
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        database = helper.getWritableDatabase();
         if(requestCode==0 && resultCode == RESULT_OK)
         {
-            if(qprocessor.itemExit(database,data.getStringExtra("SCAN_RESULT"))) {
-                String id = data.getStringExtra("SCAN_RESULT");
-                if (isNumeric(id)) {
-                    Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");
-                    chosenitemIntent.putExtra("itemid", id);
-                    startActivity(chosenitemIntent);
+            try {
+                if (data.getStringExtra("SCAN_RESULT") != null && qprocessor.itemExit(database, data.getStringExtra("SCAN_RESULT"))) {
+                    String id = data.getStringExtra("SCAN_RESULT");
+                    if (isNumeric(id)) {
+                        Intent chosenitemIntent = new Intent("com.example.warehouseproject.Code.chosenItemfromlistActivity");
+                        chosenitemIntent.putExtra("itemid", id);
+                        startActivity(chosenitemIntent);
+                    }
+                }
+                else{
+                    Toast toast = Toast.makeText(con, "Записей по данному запросу не найдено", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+
                 }
             }
-            else{
-
-                Toast toast = Toast.makeText(con, "Записей по данному запросу не найдено", Toast.LENGTH_LONG);
+            catch(Exception ex) {
+                Toast toast = Toast.makeText(con, "Сканирование не удалось", Toast.LENGTH_LONG);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
                 return;
 
             }
-
-
-        }
+            }
          else {
-            Toast toast = Toast.makeText(con, "Сканирование не удалось", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(con, "Сканирование прервано", Toast.LENGTH_LONG);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+            return;
         }
+         database.close();
     }
 
     public static boolean isNumeric(String str) {

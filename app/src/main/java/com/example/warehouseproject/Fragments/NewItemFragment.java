@@ -38,6 +38,7 @@ import com.example.warehouseproject.utilityClasses.DBHelper;
 import com.example.warehouseproject.utilityClasses.QRHelper;
 import com.example.warehouseproject.R;
 
+import com.example.warehouseproject.utilityClasses.QueriesProcessor;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
@@ -59,6 +60,7 @@ public class NewItemFragment extends Fragment {
     SQLiteDatabase database;
     DBHelper helper;
     QRHelper qrhelper;
+    QueriesProcessor qprocessor;
 
     Cursor c;
     View view;
@@ -197,36 +199,48 @@ public class NewItemFragment extends Fragment {
                 ContentValues contentValues = new ContentValues();
                 if(itemname.getText().toString().length()>4 && !itemcount.getText().toString().equals("") && itemvendor.getText().toString().length()>4) {
                     try {
-                        database.beginTransaction();
+                        if(!qprocessor.itemExist(database,itemname.getText().toString(),currentItemtype)) {
+                            database.beginTransaction();
 
-                        contentValues.put(DBHelper.KEY_ITEMTYPE, currentItemtype);
-                        contentValues.put(DBHelper.KEY_QR, printQR(Long.toString(getProfilesCount())));
-                        contentValues.put(DBHelper.KEY_ITEMNAME, itemname.getText().toString());
-                        contentValues.put(DBHelper.KEY_COUNT, itemcount.getText().toString());
-                        contentValues.put(DBHelper.KEY_DESCRIPTION, itemdescription.getText().toString());
-                        contentValues.put(DBHelper.KEY_ITEMPHOTO, imagetobyte(itemphotobytes));
-                        database.insert(DBHelper.TABLE_WAREHOUSE, null, contentValues);
+                            contentValues.put(DBHelper.KEY_ITEMTYPE, currentItemtype);
+                            contentValues.put(DBHelper.KEY_QR, printQR(Long.toString(getProfilesCount())));
+                            contentValues.put(DBHelper.KEY_ITEMNAME, itemname.getText().toString());
+                            contentValues.put(DBHelper.KEY_COUNT, itemcount.getText().toString());
+                            contentValues.put(DBHelper.KEY_DESCRIPTION, itemdescription.getText().toString());
+                            contentValues.put(DBHelper.KEY_ITEMPHOTO, imagetobyte(itemphotobytes));
+                            database.insert(DBHelper.TABLE_WAREHOUSE, null, contentValues);
 
-                        ContentValues supplyvalues = new ContentValues();
-                        supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, "+");
-                        supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
-                        supplyvalues.put(DBHelper.KEY_COUNT2, itemcount.getText().toString());
-                        supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
-                        supplyvalues.put("itemid", getProfilesCount());
-                        database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
+                            ContentValues supplyvalues = new ContentValues();
+                            supplyvalues.put(DBHelper.KEY_SUPPLYTYPE, "+");
+                            supplyvalues.put(DBHelper.KEY_ITEMVENDOR, itemvendor.getText().toString());
+                            supplyvalues.put(DBHelper.KEY_COUNT2, itemcount.getText().toString());
+                            supplyvalues.put(DBHelper.KEY_DATE, System.currentTimeMillis());
+                            supplyvalues.put("itemid", getProfilesCount());
+                            database.insert(DBHelper.TABLE_SUPPLY, null, supplyvalues);
 
-                        database.setTransactionSuccessful();
+                            database.setTransactionSuccessful();
+                        }
+                        else{
+                            Toast toast = Toast.makeText(act.getApplicationContext(), "Товар с заданным наименованием уже числится в базе товаров", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+                            itemname.setText("");
+                        }
+
                     } catch (Exception ex) {
                         Toast toast = Toast.makeText(act.getApplicationContext(), ex.getMessage().toString(), Toast.LENGTH_LONG);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
                     } finally {
-                        database.endTransaction();
+                        if(database.inTransaction()) {
+                            database.endTransaction();
+
                         Toast toast = Toast.makeText(act, "Товар успешно добавлен", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
 
                         clearforms();
+                        }
                     }
                 }
                 else{
@@ -273,7 +287,7 @@ public class NewItemFragment extends Fragment {
         helper = new DBHelper(act);
         database = helper.getWritableDatabase();
         baos = new ByteArrayOutputStream();
-
+        qprocessor = new QueriesProcessor();
         itemphotobytes = BitmapFactory.decodeResource(getResources(), R.drawable.processors);
         filters = getResources().getStringArray(R.array.processorfilters);
     }

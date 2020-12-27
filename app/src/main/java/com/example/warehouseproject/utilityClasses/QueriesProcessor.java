@@ -110,6 +110,20 @@ public class QueriesProcessor {
         }
     }
 
+    public boolean itemExist(SQLiteDatabase database,String name,String type)
+    {
+        String queryString = "SELECT * FROM " + DBHelper.TABLE_WAREHOUSE + " WHERE " + DBHelper.KEY_ITEMNAME + " = '" + name + "' AND " + DBHelper.KEY_ITEMTYPE+ " = '" + type + "'";
+
+        Cursor cursor = database.rawQuery(queryString, null);
+        if (cursor.getCount()>0)
+        {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     /**
      * Получение истории импорта и экспорта товаров
      * @param database база данных

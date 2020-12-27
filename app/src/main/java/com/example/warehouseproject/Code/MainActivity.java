@@ -35,24 +35,25 @@ public class MainActivity extends AppCompatActivity {
     public Context con;
     public BottomNavigationView bottomNav;
 
+
     //endregion
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        initializeValues();
+        initializeViews();
+
+        bottomNav.setOnNavigationItemSelectedListener(navListener);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        initializeValues();
-        initializeViews();
-
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new HomeFragment()).commit();
     }
 
     /**
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         con = getApplicationContext();
         helper = new DBHelper(this);
         database = helper.getWritableDatabase();
+
     }
 
     /**
